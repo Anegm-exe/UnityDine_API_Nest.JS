@@ -24,7 +24,7 @@ _Discussion Needed To Check Exactly What Do We Need_
 Check notion For Info On the FrontEnd Tasks Currently Too:<br>
 https://www.notion.so/1465c70e8df0803e99f1e09f663d3098?v=f6b481dcaac04322abb7491256cac1ce&pvs=4
 
-*Thank You* <3 - PS:
+*Thank You* <3
 - Please Make Sure Any Additions Are Clear And Commented!
 - Please run The Backend using The Following Command "npm run dev" To Get All the Benfits From "Nodemon"
 
