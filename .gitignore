@@ -362,5 +362,18 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
+# Node modules
+/node_modules
+
+# Compiled output
+/dist
+
+# Logs
+*.log
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
 # Future Safty change (If Repo Goes Public)
 # .env
