@@ -366,7 +366,7 @@ FodyWeavers.xsd
 /node_modules
 
 # Compiled output
-/dist
+# /dist
 
 # Logs
 *.log
