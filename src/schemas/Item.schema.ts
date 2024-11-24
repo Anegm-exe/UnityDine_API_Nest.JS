@@ -7,21 +7,22 @@ enum ItemType {
   dessert = 'dessert',
 }
 
-const MenuSchema = new Schema(
-  {
-    _id: { type: Number, required: true }, 
+export const ItemSchema = new Schema({
+    _id: { type: Number, required: true },
+    _Rid: { type: Number, required: true },
     name : { type: [String], required: true }, 
     type: { 
         type: [String], 
         enum: Object.values(ItemType), 
         required: true 
-      },  
+    },  
     description: { type: [String], required: true }, 
     price: { type: [Number], required: true },
     available: { type: [Boolean], required: true }, 
-  },
-  {
-    timestamps: true, 
-  }
+},
+    {
+        timestamps: true, 
+    }
 );
-export const Menu = model('Menu', MenuSchema);
+
+export const Item = model('Item', ItemSchema);
