@@ -1,5 +1,6 @@
 import { Item } from '../schemas/Item.schema';
 import { Types } from 'mongoose';
+
 class ItemService {
 
     async createItem(itemData: any): Promise<any> {
@@ -54,4 +55,4 @@ class ItemService {
     }
 }
 
-export default new MenuService();
+export default new ItemService();
