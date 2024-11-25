@@ -48,6 +48,40 @@ class OrderService {
             throw new Error(`Error deleting Order: ${error.message}`);
         }
     }
+    async addItems(id: string, newItems: string[]): Promise<any | null> {
+        try {
+            const updatedOrder = await Order.findByIdAndUpdate(
+                new Types.ObjectId(id),
+                { $push: { itemsById: { $each: newItems } } },
+                { new: true }
+            );
+
+            if (!updatedOrder) {
+                throw new Error('Order not found');
+            }
+
+            return updatedOrder;
+        } catch (error) {
+            throw new Error(`Error updating Order: ${error.message}`);
+        }
+    }
+    async removeItems(id: string, itemsToRemove: string[]): Promise<any | null> {
+        try {
+            const updatedOrder = await Order.findByIdAndUpdate(
+                new Types.ObjectId(id),
+                { $pull: { itemsById: { $in: itemsToRemove } } },
+                { new: true }
+            );
+
+            if (!updatedOrder) {
+                throw new Error('Order not found');
+            }
+
+            return updatedOrder;
+        } catch (error) {
+            throw new Error(`Error updating Order: ${error.message}`);
+        }
+    }
 }
 
 export default new OrderService();
