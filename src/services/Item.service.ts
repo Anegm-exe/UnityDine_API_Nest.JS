@@ -1,6 +1,5 @@
 import { Item } from '../schemas/Item.schema';
 import { Types } from 'mongoose';
-
 class ItemService {
 
     async createItem(itemData: any): Promise<any> {
@@ -20,6 +19,15 @@ class ItemService {
             throw new Error(`Error fetching Items: ${error.message}`);
         }
     }
+    
+    // Added this so I can use it in controller to get items by restaurant ID
+    async getItemsByRestaurantId(restaurantId: string): Promise<any[]> {
+        try {
+          return await Item.findById({_Rid: restaurantId}); 
+        } catch (error) {
+          throw new Error(`Error fetching items by restaurantId: ${error.message}`);
+        }
+      }
 
     async getItemById(id: string): Promise<any | null> {
         try {

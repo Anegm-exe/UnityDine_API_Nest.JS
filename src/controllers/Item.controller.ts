@@ -2,22 +2,36 @@ import { Request, Response } from 'express';
 import ItemService from '../services/Item.service';
 
 class ItemController {
+    // Get all items of restaurant including prices, names, descriptions, types, availability and ids.
 
-    //fetch all items in menu
-    async getItems(req: Request, res: Response): Promise<Response> {
+    async getItemsByRestaurantID(req: Request, res: Response): Promise<Response> {
+        const { restaurantId } = req.params;
+
+        if (!restaurantId) {
+            return res.status(400).json({ error: "Restaurant ID is required" });
+        }
         try {
-            const { itemId } = req.params; 
-            const item = await ItemService.getItemById(itemId);
-
-            if (!item) {
-                return res.status(404).json({ message: 'Menu not found' }); 
+            const menu = await ItemService.getItemsByRestaurantId(restaurantId);
+    
+            if (!menu.length) {
+                return res.status(404).json({ message: "No menu found for the specified restaurant." });
             }
-            return res.status(200).json({ items: item.items });
-        } catch (error) {
+            const processedMenu = menu.map((item) => ({
+                id: item._id,
+                names: item.name, // Array of names
+                descriptions: item.description, // Array of descriptions
+                prices: item.price, // Array of prices
+                types: item.type, // Array of types
+                availability: item.available, // Array of availability flags
+            }));
+    
+            return res.status(200).json({ restaurantId, menu: processedMenu });
+        } catch (error: any) {
             return res.status(500).json({ error: error.message });
         }
     }
-
+    
+    
     //getters
     async getID(req: Request, res: Response): Promise<Response> {
         try {
@@ -34,7 +48,7 @@ class ItemController {
         try {
             const { itemId } = req.params;
             const item = await ItemService.getItemById(itemId);
-            return res.status(200).json({ id: item._id });
+            return res.status(200).json({ id: item._Rid });
         } catch (error) {
             return res.status(500).json({ error: error.message });
         }
