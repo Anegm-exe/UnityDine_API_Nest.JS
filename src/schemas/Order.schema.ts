@@ -6,7 +6,7 @@ export const OrderSchema = new Schema(
     _Oid: { type: Number, required: true },
     RID: { type: String, required: true },
     orderDate: { type: Date, required: false },
-    itemsById: { type: Number, required: true },
+    itemsById: { type: [String], required: true },
     orderstatus: { type: String, required: false },
 },
 );
