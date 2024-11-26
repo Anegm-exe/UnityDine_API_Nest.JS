@@ -1,66 +1,48 @@
-import { Item } from '../schemas/Item.schema';
-import { Types } from 'mongoose';
-class ItemService {
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Item, ItemDocument } from '../schemas/Item.schema';
 
-    async createItem(itemData: any): Promise<any> {
-        try{
-            const newItem = new Item(itemData);
-            return await newItem.save();
-        }
-        catch (error) {
-            throw new Error(`Error creating Item: ${error.message}`);
-        }
+@Injectable()
+export class ItemService {
+    constructor(@InjectModel(Item.name) private itemModel: Model<ItemDocument>) { }
+
+    // Create A Menu Item With Data Provided
+    async create(item: Item): Promise<Item> {
+        const newItem = new this.itemModel(item);
+        return newItem.save();
     }
 
-    async getAllItems(): Promise<any[]> {
-        try {
-            return await Item.find();
-        } catch (error) {
-            throw new Error(`Error fetching Items: ${error.message}`);
-        }
-    }
-    
-    // Added this so I can use it in controller to get items by restaurant ID
-    async getItemsByRestaurantId(restaurantId: string): Promise<any[]> {
-        try {
-          return await Item.findById({_Rid: restaurantId}); 
-        } catch (error) {
-          throw new Error(`Error fetching items by restaurantId: ${error.message}`);
-        }
-      }
-
-    async getItemById(id: string): Promise<any | null> {
-        try {
-            return await Item.findById(new Types.ObjectId(id));
-        } catch (error) {
-            throw new Error(`Error fetching Item by id: ${error.message}`);
-        }
+    // Get All Menu Items From The Table
+    async findAll(): Promise<Item[]> {
+        return this.itemModel.find().exec();
     }
 
-    async updateItem(id: string, updateData: any): Promise<any | null> {
-        try {
-            const updatedMenu = await Item.findByIdAndUpdate(
-                new Types.ObjectId(id),
-                updateData,
-                { new: true }
-            );
-
-            if (!updatedMenu) {
-                throw new Error('Item not found');
-            }
-            return updatedMenu;
-        } catch (error) {
-            throw new Error(`Error updating Item: ${error.message}`);
+    // Find A Specific Menu Item by ID
+    async findOne(id: number): Promise<Item> {
+        const item = await this.itemModel.findOne({ _id: id }).exec();
+        if (!item) {
+            throw new NotFoundException(`Item with ID ${id} not found`);
         }
+        return item;
     }
 
-    async deleteItem(id: string): Promise<any | null> {
-        try {
-            return await Item.findByIdAndDelete(new Types.ObjectId(id));
-        } catch (error) {
-            throw new Error(`Error deleting Item: ${error.message}`);
+    // Update The Content Of An Menu Item
+    async update(id: number, updateData: Partial<Item>): Promise<Item> {
+        const updatedItem = await this.itemModel
+            .findOneAndUpdate({ _id: id }, updateData, { new: true })
+            .exec();
+        if (!updatedItem) {
+            throw new NotFoundException(`Item with ID ${id} not found`);
+        }
+        return updatedItem;
+    }
+
+    // Delete A Menu Item
+    async delete(id: number): Promise<void> {
+        const result = await this.itemModel.deleteOne({ _id: id }).exec();
+        if (result.deletedCount === 0) {
+            throw new NotFoundException(`Item with ID ${id} not found`);
         }
     }
 }
-
-export default new ItemService();

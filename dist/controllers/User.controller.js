@@ -1,177 +1,109 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.userController = void 0;
-const bcrypt_1 = require("bcrypt");
-const User_service_1 = require("../services/User.service");
-class UserController {
-    async login(req, res) {
-        try {
-            const { email, password } = req.body;
-            const user = await User_service_1.default.getUserByEmail(email);
-            if (user) {
-                const isPasswordValid = await bcrypt_1.default.compare(password, user.password);
-                if (isPasswordValid) {
-                    return res.status(200).json({ success: true, message: 'Login Successful' });
-                }
-                else {
-                    return res.status(401).json({ success: false, message: 'Faild To Login, Invalid Credentials' });
-                }
-            }
-            return res.status(401).json({ success: false, message: 'Faild To Login, Invalid Credentials' });
-        }
-        catch (error) {
-            res.status(500).json({ error: error.message });
-        }
+exports.UserController = void 0;
+const common_1 = require("@nestjs/common");
+const user_service_1 = require("../services/user.service");
+const user_schema_1 = require("../schemas/user.schema");
+const bcrypt = require("bcrypt");
+let UserController = class UserController {
+    constructor(userService) {
+        this.userService = userService;
     }
-    async register(req, res) {
-        try {
-            const { email, password, name, dateOfBirth } = req.body;
-            const existingUser = await User_service_1.default.getUserByEmail(email);
-            if (existingUser) {
-                return res.status(400).json({ success: false, message: 'User with this email already exists' });
-            }
-            const hashedPassword = await bcrypt_1.default.hash(password, 10);
-            const userData = {
-                email,
-                password: hashedPassword,
-                name,
-                dateOfBirth,
-                role: false,
-            };
-            const newUser = await User_service_1.default.createUser(userData);
-            return res.status(201).json({ success: true, message: 'User registered successfully', user: { email: newUser.email, name: newUser.name } });
+    async register(createUserDto) {
+        const { email, password } = createUserDto;
+        const existingUser = await this.userService.findByEmail(email);
+        if (existingUser) {
+            throw new common_1.BadRequestException('Invalid Registeration Attempt');
         }
-        catch (error) {
-            res.status(500).json({ error: error.message });
-        }
+        const hashedPassword = await bcrypt.hash(password, 15);
+        const userWithHashedPassword = { ...createUserDto, password: hashedPassword };
+        return this.userService.create(userWithHashedPassword);
     }
-    async getID(req, res) {
-        try {
-            const { userId } = req.params;
-            const user = await User_service_1.default.getUserById(userId);
-            return res.status(200).json({ id: user._id });
+    async login(credentials) {
+        const { email, password } = credentials;
+        const user = await this.userService.findByEmail(email);
+        if (!user) {
+            throw new common_1.UnauthorizedException('Invalid Login Attempt');
         }
-        catch (error) {
-            return res.status(500).json({ error: error.message });
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            throw new common_1.UnauthorizedException('Invalid Login Attempt');
         }
+        return {
+            message: 'Login successful',
+            user,
+        };
     }
-    async getName(req, res) {
-        try {
-            const { userId } = req.params;
-            const user = await User_service_1.default.getUserById(userId);
-            return res.status(200).json({ name: user.name });
-        }
-        catch (error) {
-            return res.status(500).json({ error: error.message });
-        }
+    async findAll() {
+        return this.userService.findAll();
     }
-    async getContact(req, res) {
-        try {
-            const { userId } = req.params;
-            const user = await User_service_1.default.getUserById(userId);
-            return res.status(200).json({ contact: user.contact });
-        }
-        catch (error) {
-            return res.status(500).json({ error: error.message });
-        }
+    async findOne(id) {
+        return this.userService.findOne(id);
     }
-    async getEmail(req, res) {
-        try {
-            const { userId } = req.params;
-            const user = await User_service_1.default.getUserById(userId);
-            return res.status(200).json({ email: user.email });
-        }
-        catch (error) {
-            return res.status(500).json({ error: error.message });
-        }
+    async update(id, updateUserDto) {
+        return this.userService.update(id, updateUserDto);
     }
-    async getDateOfBirth(req, res) {
-        try {
-            const { userId } = req.params;
-            const user = await User_service_1.default.getUserById(userId);
-            return res.status(200).json({ dateOfBirth: user.dateOfBirth });
-        }
-        catch (error) {
-            return res.status(500).json({ error: error.message });
-        }
+    async delete(id) {
+        return this.userService.delete(id);
     }
-    async getRole(req, res) {
-        try {
-            const { userId } = req.params;
-            const user = await User_service_1.default.getUserById(userId);
-            return res.status(200).json({ role: user.role });
-        }
-        catch (error) {
-            return res.status(500).json({ error: error.message });
-        }
-    }
-    async setName(req, res) {
-        try {
-            const { userId } = req.params;
-            const { name } = req.body;
-            if (!name)
-                return res.status(400).json({ success: false, message: 'Name is required' });
-            const updatedUser = await User_service_1.default.updateUser(userId, { name });
-            if (!updatedUser)
-                return res.status(404).json({ success: false, message: 'User Not Found' });
-            return res.status(200).json({ success: true, user: updatedUser });
-        }
-        catch (error) {
-            return res.status(500).json({ error: error.message });
-        }
-    }
-    async setContact(req, res) {
-        try {
-            const { userId } = req.params;
-            const { contact } = req.body;
-            const user = await User_service_1.default.updateUser(userId, { contact });
-            return res.status(200).json(user);
-        }
-        catch (error) {
-            return res.status(500).json({ error: error.message });
-        }
-    }
-    async setEmail(req, res) {
-        try {
-            const { userId } = req.params;
-            const { email } = req.body;
-            const user = await User_service_1.default.updateUser(userId, { email });
-            return res.status(200).json(user);
-        }
-        catch (error) {
-            return res.status(500).json({ error: error.message });
-        }
-    }
-    async setDateOfBirth(req, res) {
-        try {
-            const { userId } = req.params;
-            const { dateOfBirth } = req.body;
-            const user = await User_service_1.default.updateUser(userId, { dateOfBirth });
-            return res.status(200).json(user);
-        }
-        catch (error) {
-            return res.status(500).json({ error: error.message });
-        }
-    }
-    async setRole(req, res) {
-        try {
-            const { userId } = req.params;
-            const { role } = req.body;
-            const user = await User_service_1.default.updateUser(userId, { role });
-            return res.status(200).json(user);
-        }
-        catch (error) {
-            return res.status(500).json({ error: error.message });
-        }
-    }
-    async viewMenu(req, res) {
-        try {
-            return res.status(200).json({ success: true, menu: 'Menu content here' });
-        }
-        catch (error) {
-            return res.status(500).json({ error: error.message });
-        }
-    }
-}
-exports.userController = new UserController();
-//# sourceMappingURL=User.controller.js.map
+};
+exports.UserController = UserController;
+__decorate([
+    (0, common_1.Post)('register'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [user_schema_1.User]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "register", null);
+__decorate([
+    (0, common_1.Post)('login'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "login", null);
+__decorate([
+    (0, common_1.Get)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "findOne", null);
+__decorate([
+    (0, common_1.Put)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "update", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "delete", null);
+exports.UserController = UserController = __decorate([
+    (0, common_1.Controller)('users'),
+    __metadata("design:paramtypes", [user_service_1.UserService])
+], UserController);
+//# sourceMappingURL=user.controller.js.map

@@ -1,18 +1,24 @@
-import { Schema, model } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 
-const ReservationSchema = new Schema({
-  RID: { type: String, required: true },
-  CID: { type: String, required: true },
-  TID: { type: String, required: true },
-  reservationTime: { type: Date, required: true },
-  reservationStatus: {
-    type: String,
-    required: true,
-    enum: ['pending', 'confirmed', 'cancelled'],
-    default: 'pending',
-  },
-});
+export type ReservationDocument = Reservation & Document;
 
-const Reservation = model('Reservation', ReservationSchema);
+@Schema({ timestamps: true })
+export class Reservation {
+    @Prop({ required: true })
+    _id: number;
 
-export { Reservation, ReservationSchema }; //  exporting both
+    @Prop({ required: true })
+    _Cid: number;
+
+    @Prop({ required: true })
+    _Tid: number;
+
+    @Prop({ required: true })
+    reservationTime: Date;
+
+    @Prop({ required: true, default: 0 })
+    reservationStatus: boolean; // True for Confirmed, False for Free
+}
+
+export const ReservationSchema = SchemaFactory.createForClass(Reservation);

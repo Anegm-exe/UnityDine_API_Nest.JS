@@ -1,72 +1,53 @@
-import { Types } from 'mongoose';
-import { User } from '../schemas/User.schema';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { User, UserDocument } from '../schemas/user.schema';
 
-class UserService {
+@Injectable()
+export class UserService {
+    constructor(@InjectModel(User.name) private userModel: Model<UserDocument>,) { }
 
-    // Create a new user
-    async createUser(userData: any): Promise<any> {
-        try {
-            const user = new User(userData);
-            return await user.save();
-        } catch (error) {
-            throw new Error(`Error creating user: ${error.message}`);
-        }
+    // Create A User With The Data Provided
+    async create(user: User): Promise<User> {
+        const newUser = new this.userModel(user);
+        return newUser.save();
     }
 
-    // Get all users
-    async getAllUsers(): Promise<any[]> {
-        try {
-            return await User.find();
-        } catch (error) {
-            throw new Error(`Error fetching users: ${error.message}`);
-        }
+    // Get All Users Existing
+    async findAll(): Promise<User[]> {
+        return this.userModel.find().exec();
     }
 
-    // Get a user by ID
-    async getUserById(id: string): Promise<any | null> {
-        try {
-            return await User.findById(new Types.ObjectId(id));
-        } catch (error) {
-            throw new Error(`Error fetching user by ID: ${error.message}`);
+    // Find A Specific User by ID
+    async findOne(id: number): Promise<User> {
+        const user = await this.userModel.findOne({ _id: id }).exec();
+        if (!user) {
+            throw new NotFoundException(`User with ID ${id} not found`);
         }
+        return user;
     }
 
-    // Get a user by Email (New method)
-    async getUserByEmail(email: string): Promise<any | null> {
-        try {
-            return await User.findOne({ email });
-        } catch (error) {
-            throw new Error(`Error fetching user by email: ${error.message}`);
-        }
+    // Find Specific User By Email
+    async findByEmail(email: string): Promise<User | null> {
+        return this.userModel.findOne({ email }).exec();
     }
 
-    // Update a user by ID
-    async updateUser(id: string, updateData: Partial<any>): Promise<any | null> {
-        try {
-            const updatedUser = await User.findByIdAndUpdate(
-                new Types.ObjectId(id),
-                updateData,
-                { new: true }
-            );
-
-            if (!updatedUser) {
-                throw new Error('User not found');
-            }
-
-            return updatedUser;
-        } catch (error) {
-            throw new Error(`Error updating user: ${error.message}`);
+    // Update A User Based On New-Data
+    async update(id: number, updateData: Partial<User>): Promise<User> {
+        const updatedUser = await this.userModel
+            .findOneAndUpdate({ _id: id }, updateData, { new: true })
+            .exec();
+        if (!updatedUser) {
+            throw new NotFoundException(`User with ID ${id} not found`);
         }
+        return updatedUser;
     }
 
-    // Delete a user by ID
-    async deleteUser(id: string): Promise<any | null> {
-        try {
-            return await User.findByIdAndDelete(new Types.ObjectId(id));
-        } catch (error) {
-            throw new Error(`Error deleting user: ${error.message}`);
+    // Delete A User
+    async delete(id: number): Promise<void> {
+        const result = await this.userModel.deleteOne({ _id: id }).exec();
+        if (result.deletedCount === 0) {
+            throw new NotFoundException(`User with ID ${id} not found`);
         }
     }
 }
-
-export default new UserService();

@@ -1,19 +1,18 @@
-import { Request, Response } from 'express';
-declare class UserController {
-    login(req: Request, res: Response): Promise<Response>;
-    register(req: Request, res: Response): Promise<Response>;
-    getID(req: Request, res: Response): Promise<Response>;
-    getName(req: Request, res: Response): Promise<Response>;
-    getContact(req: Request, res: Response): Promise<Response>;
-    getEmail(req: Request, res: Response): Promise<Response>;
-    getDateOfBirth(req: Request, res: Response): Promise<Response>;
-    getRole(req: Request, res: Response): Promise<Response>;
-    setName(req: Request, res: Response): Promise<Response>;
-    setContact(req: Request, res: Response): Promise<Response>;
-    setEmail(req: Request, res: Response): Promise<Response>;
-    setDateOfBirth(req: Request, res: Response): Promise<Response>;
-    setRole(req: Request, res: Response): Promise<Response>;
-    viewMenu(req: Request, res: Response): Promise<Response>;
+import { UserService } from '../services/user.service';
+import { User } from '../schemas/user.schema';
+export declare class UserController {
+    private readonly userService;
+    constructor(userService: UserService);
+    register(createUserDto: User): Promise<User>;
+    login(credentials: {
+        email: string;
+        password: string;
+    }): Promise<{
+        message: string;
+        user: User;
+    }>;
+    findAll(): Promise<User[]>;
+    findOne(id: number): Promise<User>;
+    update(id: number, updateUserDto: Partial<User>): Promise<User>;
+    delete(id: number): Promise<void>;
 }
-export declare const userController: UserController;
-export {};

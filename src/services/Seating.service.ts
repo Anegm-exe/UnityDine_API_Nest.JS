@@ -1,63 +1,48 @@
-import { Types } from 'mongoose';
-import { Seating } from '../schemas/Seating.schema';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Seating, SeatingDocument } from '../schemas/Seating.schema';
 
-class SeatingService {
+@Injectable()
+export class SeatingService {
+    constructor(@InjectModel(Seating.name) private seatingModel: Model<SeatingDocument>) { }
 
-
-    async createSeating(seatingData: any): Promise<any> {
-        try {
-            const seating = new Seating(seatingData);
-            return await seating.save();
-        } catch (error) {
-            throw new Error(`Error creating seating: ${error.message}`);
-        }
+    // Create A Table With Data Provided
+    async create(seating: Seating): Promise<Seating> {
+        const newSeating = new this.seatingModel(seating);
+        return newSeating.save();
     }
 
-    // Get all seating
-    async getAllSeatings(): Promise<any[]> {
-        try {
-            return await Seating.find();
-        } catch (error) {
-            throw new Error(`Error fetching seating: ${error.message}`);
-        }
+    // Get All Tables From The Table
+    async findAll(): Promise<Seating[]> {
+        return this.seatingModel.find().exec();
     }
 
-    // Get a seating by ID
-    async getSeatingById(id: string): Promise<any | null> {
-        try {
-            return await Seating.findById(new Types.ObjectId(id));
-        } catch (error) {
-            throw new Error(`Error fetching seating by ID: ${error.message}`);
+    // Find A Specific Table
+    async findOne(id: number): Promise<Seating> {
+        const seating = await this.seatingModel.findOne({ _id: id }).exec();
+        if (!seating) {
+            throw new NotFoundException(`Table with ID ${id} not found`);
         }
+        return seating;
     }
 
-    // Update a Seating by ID
-    async updateSeating(id: string, updateData: Partial<any>): Promise<any | null> {
-        try {
-            const updatedSeating = await Seating.findByIdAndUpdate(
-                new Types.ObjectId(id),
-                updateData,
-                { new: true }
-            );
-
-            if (!updatedSeating) {
-                throw new Error('Seating not found');
-            }
-
-            return updatedSeating;
-        } catch (error) {
-            throw new Error(`Error updating seating: ${error.message}`);
+    // Update The Content Of An Table
+    async update(id: number, updateData: Partial<Seating>): Promise<Seating> {
+        const updatedSeating = await this.seatingModel
+            .findOneAndUpdate({ _id: id }, updateData, { new: true })
+            .exec();
+        if (!updatedSeating) {
+            throw new NotFoundException(`Table with ID ${id} not found`);
         }
+        return updatedSeating;
     }
 
-    // Delete a Seating by ID
-    async deleteSeating(id: string): Promise<any | null> {
-        try {
-            return await Seating.findByIdAndDelete(new Types.ObjectId(id));
-        } catch (error) {
-            throw new Error(`Error deleting seating: ${error.message}`);
+    // Delete A Table
+    async delete(id: number): Promise<void> {
+        const result = await this.seatingModel.deleteOne({ _id: id }).exec();
+        if (result.deletedCount === 0) {
+            throw new NotFoundException(`Table with ID ${id} not found`);
         }
     }
 }
-
-export default new SeatingService();

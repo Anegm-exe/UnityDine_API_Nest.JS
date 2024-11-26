@@ -1,88 +1,48 @@
-import { Types } from 'mongoose';
-import { Order } from '../schemas/Order.schema';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Order, OrderDocument } from '../schemas/Order.schema';
 
-class OrderService {
+@Injectable()
+export class OrderService {
+    constructor(@InjectModel(Order.name) private orderModel: Model<OrderDocument>) { }
 
-    // Get all Restraunt
-    async getAllOrder(): Promise<any[]> {
-        try {
-            return await Order.find();
-        } catch (error) {
-            throw new Error(`Error fetching Order: ${error.message}`);
-        }
+    // Create A Order With Data Provided
+    async create(order: Order): Promise<Order> {
+        const newOrder = new this.orderModel(order);
+        return newOrder.save();
     }
 
-    // Get a Restraunt by ID
-    async getOrderById(id: string): Promise<any | null> {
-        try {
-            return await Order.findById(new Types.ObjectId(id));
-        } catch (error) {
-            throw new Error(`Error fetching Order by ID: ${error.message}`);
-        }
+    // Get All Orders From The Table
+    async findAll(): Promise<Order[]> {
+        return this.orderModel.find().exec();
     }
 
-    // Update a Restraunt by ID
-    async updateOrder(id: string, updateData: Partial<any>): Promise<any | null> {
-        try {
-            const updatedOrder = await Order.findByIdAndUpdate(
-                new Types.ObjectId(id),
-                updateData,
-                { new: true }
-            );
-
-            if (!updatedOrder) {
-                throw new Error('Order not found');
-            }
-
-            return updatedOrder;
-        } catch (error) {
-            throw new Error(`Error updating Order: ${error.message}`);
+    // Find A Specific Order
+    async findOne(id: number): Promise<Order> {
+        const order = await this.orderModel.findOne({ _id: id }).exec();
+        if (!order) {
+            throw new NotFoundException(`Order with ID ${id} not found`);
         }
+        return order;
     }
 
-    // Delete a Seating by ID
-    async deleteOrder(id: string): Promise<any | null> {
-        try {
-            return await Order.findByIdAndDelete(new Types.ObjectId(id));
-        } catch (error) {
-            throw new Error(`Error deleting Order: ${error.message}`);
+    // Update The Content Of An Order
+    async update(id: number, updateData: Partial<Order>): Promise<Order> {
+        const updatedOrder = await this.orderModel
+            .findOneAndUpdate({ _id: id }, updateData, { new: true })
+            .exec();
+        if (!updatedOrder) {
+            throw new NotFoundException(`Order with ID ${id} not found`);
         }
+        return updatedOrder;
     }
-    async addItems(id: string, newItems: string[]): Promise<any | null> {
-        try {
-            const updatedOrder = await Order.findByIdAndUpdate(
-                new Types.ObjectId(id),
-                { $push: { itemsById: { $each: newItems } } },
-                { new: true }
-            );
 
-            if (!updatedOrder) {
-                throw new Error('Order not found');
-            }
-
-            return updatedOrder;
-        } catch (error) {
-            throw new Error(`Error updating Order: ${error.message}`);
-        }
-    }
-    async removeItems(id: string, itemsToRemove: string[]): Promise<any | null> {
-        try {
-            const updatedOrder = await Order.findByIdAndUpdate(
-                new Types.ObjectId(id),
-                { $pull: { itemsById: { $in: itemsToRemove } } },
-                { new: true }
-            );
-
-            if (!updatedOrder) {
-                throw new Error('Order not found');
-            }
-
-            return updatedOrder;
-        } catch (error) {
-            throw new Error(`Error updating Order: ${error.message}`);
+    // Delete A Order
+    async delete(id: number): Promise<void> {
+        const result = await this.orderModel.deleteOne({ _id: id }).exec();
+        if (result.deletedCount === 0) {
+            throw new NotFoundException(`Order with ID ${id} not found`);
         }
     }
 }
-
-export default new OrderService();
-

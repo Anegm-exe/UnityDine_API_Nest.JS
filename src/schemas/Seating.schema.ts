@@ -1,15 +1,18 @@
-import { Schema, model } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 
-export const SeatingSchema = new Schema(
-    {
-        _Tid: { type: Number, required: true },
-        Capacity: { type: Number, required: true },
-        Available: { type: Boolean, required: true }
+export type SeatingDocument = Seating & Document;
 
-    },
-    {
-        timestamps: true,   // Adds Created-At & Updated-At
-    }
-);
+@Schema({ timestamps: true })
+export class Seating {
+    @Prop({ required: true })
+    _id: number;
 
-export const Seating = model('Seating', SeatingSchema); // Exporting To Recieve It In Service
+    @Prop({ required: true })
+    capacity: number;
+
+    @Prop({ required: true })
+    available: boolean;
+}
+
+export const SeatingSchema = SchemaFactory.createForClass(Seating);

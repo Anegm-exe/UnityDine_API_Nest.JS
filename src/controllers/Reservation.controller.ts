@@ -1,68 +1,37 @@
-import { Request, Response } from 'express';
-import reservationService from '../services/Reservation.service'; 
+import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
+import { ReservationService } from '../services/Reservation.service';
+import { Reservation } from '../schemas/Reservation.schema';
 
-class ReservationController {
-  async getAllReservations(req: Request, res: Response) {
-    try {
-      const reservations = await reservationService.getAllReservations();
-      res.status(200).json(reservations);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
-    }
-  }
+@Controller('reservations')
+export class ReservationController {
+    constructor(private readonly reservationService: ReservationService) { }
 
-  async createReservation(req: Request, res: Response) {
-    try {
-      const reservationData = req.body;
-      const newReservation = await reservationService.createReservation(reservationData);
-      res.status(201).json(newReservation);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    // All Single Supporting Funcs (Main Single Service Ones)
+    @Post()
+    async create(@Body() createReservationDto: Reservation): Promise<Reservation> {
+        return this.reservationService.create(createReservationDto);
     }
-  }
 
-  async getReservationById(req: Request, res: Response) {
-    try {
-      const { reservationId } = req.params;
-      const reservation = await reservationService.getReservationById(reservationId);
-      if (!reservation) {
-        return res.status(404).json({ message: 'Reservation not found' });
-      }
-      res.status(200).json(reservation);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    @Get()
+    async findAll(): Promise<Reservation[]> {
+        return this.reservationService.findAll();
     }
-  }
 
-  async updateReservation(req: Request, res: Response) {
-    try {
-      const { reservationId } = req.params;
-      const updateData = req.body;
-      const updatedReservation = await reservationService.updateReservation(
-        reservationId,
-        updateData
-      );
-      if (!updatedReservation) {
-        return res.status(404).json({ message: 'Reservation not found' });
-      }
-      res.status(200).json(updatedReservation);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    @Get(':id')
+    async findOne(@Param('id') id: number): Promise<Reservation> {
+        return this.reservationService.findOne(id);
     }
-  }
 
-  async deleteReservation(req: Request, res: Response) {
-    try {
-      const { reservationId } = req.params;
-      const deletedReservation = await reservationService.deleteReservation(reservationId);
-      if (!deletedReservation) {
-        return res.status(404).json({ message: 'Reservation not found' });
-      }
-      res.status(204).send();
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    @Put(':id')
+    async update(
+        @Param('id') id: number,
+        @Body() updateReservationDto: Partial<Reservation>,
+    ): Promise<Reservation> {
+        return this.reservationService.update(id, updateReservationDto);
     }
-  }
+
+    @Delete(':id')
+    async delete(@Param('id') id: number): Promise<void> {
+        return this.reservationService.delete(id);
+    }
 }
-
-export default new ReservationController();

@@ -1,28 +1,30 @@
-import { Schema, model } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 
-// Enum for Item Types
-enum ItemType {
-  food = 'food',
-  drink = 'drink',
-  dessert = 'dessert',
+export type ItemDocument = Item & Document;
+
+@Schema({ timestamps: true })
+export class Item {
+    @Prop({ required: true })
+    _id: number;
+
+    @Prop({ required: true })
+    _Rid: number;
+
+    @Prop({ required: true })
+    name: string;
+
+    @Prop({ required: true, enum: ['food', 'drink', 'dessert'] })
+    type: 'food' | 'drink' | 'dessert';
+
+    @Prop({ required: true })
+    description: string;
+
+    @Prop({ required: true })
+    price: number;
+
+    @Prop({ default: true })
+    available: boolean;
 }
 
-export const ItemSchema = new Schema({
-    _id: { type: Number, required: true },
-    _Rid: { type: Number, required: true },
-    name : { type: [String], required: true }, 
-    type: { 
-        type: [String], 
-        enum: Object.values(ItemType), 
-        required: true 
-    },  
-    description: { type: [String], required: true }, 
-    price: { type: [Number], required: true },
-    available: { type: [Boolean], required: true }, 
-},
-    {
-        timestamps: true, 
-    }
-);
-
-export const Item = model('Item', ItemSchema);
+export const ItemSchema = SchemaFactory.createForClass(Item);

@@ -1,69 +1,37 @@
-import { Request, Response } from 'express';
-import OrderService from '../services/Order.service';
+import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
+import { OrderService } from '../services/Order.service';
+import { Order } from '../schemas/Order.schema';
 
-class OrderController {
+@Controller('orders')
+export class OrderController {
+    constructor(private readonly orderService: OrderService) { }
 
-    // Gettings
-
-    async getRID(req: Request, res: Response): Promise<Response> {
-        try {
-            const { OID } = req.params;
-            const order = await OrderService.getOrderById(OID);
-            return res.status(200).json({ id: order.RID });
-        } catch (error) {
-            return res.status(500).json({ error: error.message });
-        }
+    // All Single Supporting Funcs (Main Single Service Ones)
+    @Post()
+    async create(@Body() createOrderDto: Order): Promise<Order> {
+        return this.orderService.create(createOrderDto);
     }
 
-    async getOrderDate(req: Request, res: Response): Promise<Response> {
-        try {
-            const { OID } = req.params;
-            const restraunt = await OrderService.getOrderById(OID);
-            return res.status(200).json({ capacity: restraunt.orderDate });
-        } catch (error) {
-            return res.status(500).json({ error: error.message });
-        }
+    @Get()
+    async findAll(): Promise<Order[]> {
+        return this.orderService.findAll();
     }
 
-    async getItemsById(req: Request, res: Response): Promise<Response> {
-        try {
-            const { OID } = req.params;
-            const restraunt = await OrderService.getOrderById(OID);
-            return res.status(200).json({ capacity: restraunt.ItemsById });
-        } catch (error) {
-            return res.status(500).json({ error: error.message });
-        }
+    @Get(':id')
+    async findOne(@Param('id') id: number): Promise<Order> {
+        return this.orderService.findOne(id);
     }
-    
-    async getOrderstatus(req: Request, res: Response): Promise<Response> {
-        try {
-            const { OID } = req.params;
-            const restraunt = await OrderService.getOrderById(OID);
-            return res.status(200).json({ capacity: restraunt.orderstatus });
-        } catch (error) {
-            return res.status(500).json({ error: error.message });
-        }
+
+    @Put(':id')
+    async update(
+        @Param('id') id: number,
+        @Body() updateOrderDto: Partial<Order>,
+    ): Promise<Order> {
+        return this.orderService.update(id, updateOrderDto);
     }
-    async addItems(req: Request, res: Response): Promise<Response> {
-        try {
-            const { OID } = req.params;
-            const { items } = req.body;
-            const order = await OrderService.addItems(OID, items);
-            return res.status(200).json({ message: 'Items added successfully', order });
-        } catch (error) {
-            return res.status(500).json({ error: error.message });
-        }
-    }
-    async removeItems(req: Request, res: Response): Promise<Response> {
-        try {
-            const { OID } = req.params;
-            const { items } = req.body;
-            const order = await OrderService.removeItems(OID, items);
-            return res.status(200).json({ message: 'Items removed successfully', order });
-        } catch (error) {
-            return res.status(500).json({ error: error.message });
-        }
+
+    @Delete(':id')
+    async delete(@Param('id') id: number): Promise<void> {
+        return this.orderService.delete(id);
     }
 }
-
-export const orderController = new OrderController();

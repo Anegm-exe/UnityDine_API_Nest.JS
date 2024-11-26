@@ -1,19 +1,30 @@
-import { Schema, model } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 
-// A SCHEMA BLUEPRINT
-export const UserSchema = new Schema(
-{
-    _id: { type: Number, required: true },
-    name: { type: String, required: true },
-    contact: { type: String, required: false },
-    dateOfBirth: { type: Date, required: true },
-    email: { type: String, required: true },
-    password: { type: String, required: true },
-    role: { type: Boolean, required: true, },
-},
-{
-    timestamps: true,   // Adds Created-At & Updated-At
+export type UserDocument = User & Document;
+
+@Schema({ timestamps: true }) // Adds createdAt and updatedAt fields automatically
+export class User {
+    @Prop({ required: true })
+    _id: number;
+
+    @Prop({ required: true })
+    name: string;
+
+    @Prop()
+    contact?: string;
+
+    @Prop({ required: true })
+    dateOfBirth: Date;
+
+    @Prop({ required: true })
+    email: string;
+
+    @Prop({ required: true })
+    password: string;
+
+    @Prop({ required: true })
+    role: boolean; // True for admin, false for regular user
 }
-);
 
-export const User = model('User', UserSchema); // Exporting To Recieve It In Service
+export const UserSchema = SchemaFactory.createForClass(User);

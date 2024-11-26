@@ -1,10 +1,12 @@
-declare class UserService {
-    createUser(userData: any): Promise<any>;
-    getAllUsers(): Promise<any[]>;
-    getUserById(id: string): Promise<any | null>;
-    getUserByEmail(email: string): Promise<any | null>;
-    updateUser(id: string, updateData: Partial<any>): Promise<any | null>;
-    deleteUser(id: string): Promise<any | null>;
+import { Model } from 'mongoose';
+import { User, UserDocument } from '../schemas/user.schema';
+export declare class UserService {
+    private userModel;
+    constructor(userModel: Model<UserDocument>);
+    create(user: User): Promise<User>;
+    findAll(): Promise<User[]>;
+    findOne(id: number): Promise<User>;
+    findByEmail(email: string): Promise<User | null>;
+    update(id: number, updateData: Partial<User>): Promise<User>;
+    delete(id: number): Promise<void>;
 }
-declare const _default: UserService;
-export default _default;
