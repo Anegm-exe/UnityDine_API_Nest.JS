@@ -16,26 +16,22 @@ let Order = class Order {
 exports.Order = Order;
 __decorate([
     (0, mongoose_1.Prop)({ required: true }),
-    __metadata("design:type", Number)
-], Order.prototype, "_id", void 0);
+    __metadata("design:type", String)
+], Order.prototype, "restaurant_id", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: true }),
-    __metadata("design:type", Number)
-], Order.prototype, "_Rid", void 0);
-__decorate([
-    (0, mongoose_1.Prop)({ required: true, type: [String] }),
     __metadata("design:type", Array)
-], Order.prototype, "itemsOrdered", void 0);
+], Order.prototype, "items_ordered", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
+    (0, mongoose_1.Prop)({ default: Date.now }),
     __metadata("design:type", Date)
-], Order.prototype, "orderDate", void 0);
+], Order.prototype, "order_date", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: true, enum: ['Recived', 'In-Kitchen', 'Ready'] }),
     __metadata("design:type", String)
-], Order.prototype, "orderStatus", void 0);
+], Order.prototype, "order_status", void 0);
 exports.Order = Order = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], Order);
 exports.OrderSchema = mongoose_1.SchemaFactory.createForClass(Order);
-//# sourceMappingURL=Order.schema.js.map
+//# sourceMappingURL=order.schema.js.map

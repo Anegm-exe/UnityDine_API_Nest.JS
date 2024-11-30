@@ -5,20 +5,22 @@ export type ReservationDocument = Reservation & Document;
 
 @Schema({ timestamps: true })
 export class Reservation {
-    @Prop({ required: true })
-    _id: number;
+    @Prop({ required: true, ref: 'User' })
+    customer_id: string;
+
+    @Prop({ required: true, ref: 'Table'})
+    table_id: string;
 
     @Prop({ required: true })
-    _Cid: number;
+    reservation_time: Date;
 
     @Prop({ required: true })
-    _Tid: number;
+    end_time: Date;
 
-    @Prop({ required: true })
-    reservationTime: Date;
+    @Prop({ default: 'Ready', enum:['Ready','Reserved']})
+    reservation_status: string;
 
-    @Prop({ required: true, default: 0 })
-    reservationStatus: boolean; // True for Confirmed, False for Free
+    readonly _id?: string;
 }
 
 export const ReservationSchema = SchemaFactory.createForClass(Reservation);

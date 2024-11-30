@@ -15,13 +15,9 @@ let Item = class Item {
 };
 exports.Item = Item;
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
-    __metadata("design:type", Number)
-], Item.prototype, "_id", void 0);
-__decorate([
-    (0, mongoose_1.Prop)({ required: true }),
-    __metadata("design:type", Number)
-], Item.prototype, "_Rid", void 0);
+    (0, mongoose_1.Prop)({ required: true, ref: 'Retaurant' }),
+    __metadata("design:type", String)
+], Item.prototype, "restaurant_id", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", String)
@@ -46,4 +42,4 @@ exports.Item = Item = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], Item);
 exports.ItemSchema = mongoose_1.SchemaFactory.createForClass(Item);
-//# sourceMappingURL=Item.schema.js.map
+//# sourceMappingURL=item.schema.js.map

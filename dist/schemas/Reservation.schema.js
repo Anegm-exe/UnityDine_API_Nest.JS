@@ -15,27 +15,27 @@ let Reservation = class Reservation {
 };
 exports.Reservation = Reservation;
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
-    __metadata("design:type", Number)
-], Reservation.prototype, "_id", void 0);
+    (0, mongoose_1.Prop)({ required: true, ref: 'User' }),
+    __metadata("design:type", String)
+], Reservation.prototype, "customer_id", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
-    __metadata("design:type", Number)
-], Reservation.prototype, "_Cid", void 0);
-__decorate([
-    (0, mongoose_1.Prop)({ required: true }),
-    __metadata("design:type", Number)
-], Reservation.prototype, "_Tid", void 0);
+    (0, mongoose_1.Prop)({ required: true, ref: 'Table' }),
+    __metadata("design:type", String)
+], Reservation.prototype, "table_id", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", Date)
-], Reservation.prototype, "reservationTime", void 0);
+], Reservation.prototype, "reservation_time", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true, default: 0 }),
-    __metadata("design:type", Boolean)
-], Reservation.prototype, "reservationStatus", void 0);
+    (0, mongoose_1.Prop)({ required: true }),
+    __metadata("design:type", Date)
+], Reservation.prototype, "end_time", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ default: 'Ready', enum: ['Ready', 'Reserved'] }),
+    __metadata("design:type", String)
+], Reservation.prototype, "reservation_status", void 0);
 exports.Reservation = Reservation = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], Reservation);
 exports.ReservationSchema = mongoose_1.SchemaFactory.createForClass(Reservation);
-//# sourceMappingURL=Reservation.schema.js.map
+//# sourceMappingURL=reservation.schema.js.map

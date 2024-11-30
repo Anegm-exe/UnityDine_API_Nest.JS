@@ -8,27 +8,26 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
-const database_module_1 = require("./database.module");
-const user_controller_1 = require("./controllers/user.controller");
-const Item_controller_1 = require("./controllers/Item.controller");
-const Reservation_controller_1 = require("./controllers/Reservation.controller");
-const Restaurant_controller_1 = require("./controllers/Restaurant.controller");
-const Order_controller_1 = require("./controllers/Order.controller");
-const Seating_controller_1 = require("./controllers/Seating.controller");
-const user_service_1 = require("./services/user.service");
-const Item_service_1 = require("./services/Item.service");
-const Reservation_service_1 = require("./services/Reservation.service");
-const Restaurant_service_1 = require("./services/Restaurant.service");
-const Order_service_1 = require("./services/Order.service");
-const Seating_service_1 = require("./services/Seating.service");
+const item_module_1 = require("./item/item.module");
+const order_module_1 = require("./order/order.module");
+const user_module_1 = require("./user/user.module");
+const restaurant_module_1 = require("./restaurant/restaurant.module");
+const reservation_module_1 = require("./reservation/reservation.module");
+const table_module_1 = require("./table/table.module");
+const mongoose_1 = require("@nestjs/mongoose");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [database_module_1.DatabaseModule],
-        controllers: [user_controller_1.UserController, Item_controller_1.ItemController, Reservation_controller_1.ReservationController, Restaurant_controller_1.RestaurantController, Order_controller_1.OrderController, Seating_controller_1.SeatingController],
-        providers: [user_service_1.UserService, Item_service_1.ItemService, Reservation_service_1.ReservationService, Restaurant_service_1.RestaurantService, Order_service_1.OrderService, Seating_service_1.SeatingService],
+        imports: [mongoose_1.MongooseModule.forRoot('mongodb+srv://dbUser:ClRDnHMGCWJu8JpO@unitydine.jnzpu.mongodb.net/UnityDine'),
+            item_module_1.ItemModule,
+            order_module_1.OrderModule,
+            user_module_1.UserModule,
+            restaurant_module_1.RestaurantModule,
+            reservation_module_1.ReservationModule,
+            table_module_1.TableModule
+        ]
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

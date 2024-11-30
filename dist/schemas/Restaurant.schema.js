@@ -11,13 +11,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RestaurantSchema = exports.Restaurant = void 0;
 const mongoose_1 = require("@nestjs/mongoose");
+const mongoose_2 = require("mongoose");
 let Restaurant = class Restaurant {
 };
 exports.Restaurant = Restaurant;
-__decorate([
-    (0, mongoose_1.Prop)({ required: true }),
-    __metadata("design:type", Number)
-], Restaurant.prototype, "_id", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", String)
@@ -31,11 +28,27 @@ __decorate([
     __metadata("design:type", String)
 ], Restaurant.prototype, "contact", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
+    (0, mongoose_1.Prop)({ default: 0, min: 0, max: 5 }),
     __metadata("design:type", Number)
 ], Restaurant.prototype, "rating", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ default: [], type: [{ type: mongoose_2.default.Schema.Types.ObjectId, ref: 'Reservation' }] }),
+    __metadata("design:type", Array)
+], Restaurant.prototype, "reservations", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ default: [], type: [{ type: mongoose_2.default.Schema.Types.ObjectId, ref: 'Order' }] }),
+    __metadata("design:type", Array)
+], Restaurant.prototype, "orders", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ default: [], type: [{ type: mongoose_2.default.Schema.Types.ObjectId, ref: 'Table' }] }),
+    __metadata("design:type", Array)
+], Restaurant.prototype, "tables", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ default: [], type: [{ type: mongoose_2.default.Schema.Types.ObjectId, ref: 'Item' }] }),
+    __metadata("design:type", Array)
+], Restaurant.prototype, "items", void 0);
 exports.Restaurant = Restaurant = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], Restaurant);
 exports.RestaurantSchema = mongoose_1.SchemaFactory.createForClass(Restaurant);
-//# sourceMappingURL=Restaurant.schema.js.map
+//# sourceMappingURL=restaurant.schema.js.map

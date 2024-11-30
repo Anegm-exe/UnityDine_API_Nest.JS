@@ -1,27 +1,22 @@
 import { Module } from '@nestjs/common';
 
-// Import the DatabaseModule
-import { DatabaseModule } from './database.module'; 
-
-// Importing Controllers
-import { UserController } from './controllers/user.controller';
-import { ItemController } from './controllers/Item.controller';
-import { ReservationController } from './controllers/Reservation.controller';
-import { RestaurantController } from './controllers/Restaurant.controller';
-import { OrderController } from './controllers/Order.controller';
-import { SeatingController } from './controllers/Seating.controller';
-
 // Importing Services
-import { UserService } from './services/user.service';
-import { ItemService } from './services/Item.service';
-import { ReservationService } from './services/Reservation.service';
-import { RestaurantService } from './services/Restaurant.service';
-import { OrderService } from './services/Order.service';
-import { SeatingService } from './services/Seating.service';
+import { ItemModule } from './item/item.module';
+import { OrderModule } from './order/order.module';
+import { UserModule } from './user/user.module';
+import { RestaurantModule } from './restaurant/restaurant.module';
+import { ReservationModule } from './reservation/reservation.module';
+import { TableModule } from './table/table.module';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
-    imports: [DatabaseModule],
-    controllers: [UserController, ItemController, ReservationController, RestaurantController, OrderController, SeatingController], // Add your Controllers Here For The Main To Read
-    providers: [UserService, ItemService, ReservationService, RestaurantService, OrderService, SeatingService], // Add your services Here For The Main To Read
+    imports: [MongooseModule.forRoot('mongodb+srv://dbUser:ClRDnHMGCWJu8JpO@unitydine.jnzpu.mongodb.net/UnityDine'),
+        ItemModule,
+        OrderModule, 
+        UserModule, 
+        RestaurantModule,
+        ReservationModule, 
+        TableModule
+    ]
 })
 export class AppModule { }

@@ -6,19 +6,18 @@ export type OrderDocument = Order & Document;
 @Schema({ timestamps: true })
 export class Order {
     @Prop({ required: true })
-    _id: number;
+    restaurant_id: string;
 
     @Prop({ required: true })
-    _Rid: number;
+    items_ordered: string[];
 
-    @Prop({ required: true, type: [String] })
-    itemsOrdered: string[];
-
-    @Prop({ required: true })
-    orderDate: Date;
+    @Prop({ default:Date.now })
+    order_date: Date;
 
     @Prop({ required: true, enum: ['Recived', 'In-Kitchen', 'Ready'] })
-    orderStatus: 'Recived' | 'In-Kitchen' | 'Ready';
+    order_status: string;
+
+    readonly _id?: string;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);
