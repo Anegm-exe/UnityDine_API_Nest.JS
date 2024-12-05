@@ -13,7 +13,7 @@ export class Restaurant {
     name: string;
 
     @Prop({ required: true })
-    Location: string;
+    location: string;
 
     @Prop({ required: true })
     contact: string;
