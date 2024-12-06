@@ -1,6 +1,8 @@
 import { Document } from 'mongoose';
 export type TableDocument = Table & Document;
 export declare class Table {
+    restaurant_id: string;
+    reservation_id: string;
     capacity: number;
     available: boolean;
     readonly _id?: string;

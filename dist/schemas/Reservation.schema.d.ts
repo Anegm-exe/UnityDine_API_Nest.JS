@@ -3,8 +3,10 @@ export type ReservationDocument = Reservation & Document;
 export declare class Reservation {
     customer_id: string;
     table_id: string;
+    restaurant_id: string;
     reservation_time: Date;
     end_time: Date;
+    guests: number;
     reservation_status: string;
     readonly _id?: string;
 }

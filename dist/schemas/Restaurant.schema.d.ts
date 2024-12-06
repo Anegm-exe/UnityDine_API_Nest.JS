@@ -6,7 +6,7 @@ import { Item } from './item.schema';
 export type RestaurantDocument = Restaurant & Document;
 export declare class Restaurant {
     name: string;
-    Location: string;
+    location: string;
     contact: string;
     rating: number;
     reservations: Reservation[];

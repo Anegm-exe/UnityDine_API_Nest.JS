@@ -11,23 +11,28 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrderSchema = exports.Order = void 0;
 const mongoose_1 = require("@nestjs/mongoose");
+const mongoose_2 = require("mongoose");
 let Order = class Order {
 };
 exports.Order = Order;
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
+    (0, mongoose_1.Prop)({ type: [{ type: mongoose_2.Types.ObjectId, ref: "Restaurant" }], required: true }),
     __metadata("design:type", String)
 ], Order.prototype, "restaurant_id", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: [{ type: mongoose_2.Types.ObjectId, ref: "Reservation" }], required: false }),
+    __metadata("design:type", String)
+], Order.prototype, "reservation_id", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: [{ type: mongoose_2.Types.ObjectId, ref: "Table" }], required: true }),
+    __metadata("design:type", String)
+], Order.prototype, "table_id", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", Array)
 ], Order.prototype, "items_ordered", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ default: Date.now }),
-    __metadata("design:type", Date)
-], Order.prototype, "order_date", void 0);
-__decorate([
-    (0, mongoose_1.Prop)({ required: true, enum: ['Recived', 'In-Kitchen', 'Ready'] }),
+    (0, mongoose_1.Prop)({ required: true, enum: ['Pending', 'In-Kitchen', 'Ready'] }),
     __metadata("design:type", String)
 ], Order.prototype, "order_status", void 0);
 exports.Order = Order = __decorate([

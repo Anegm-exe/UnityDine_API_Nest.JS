@@ -22,7 +22,7 @@ __decorate([
 __decorate([
     (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", String)
-], Restaurant.prototype, "Location", void 0);
+], Restaurant.prototype, "location", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", String)
@@ -32,19 +32,19 @@ __decorate([
     __metadata("design:type", Number)
 ], Restaurant.prototype, "rating", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ default: [], type: [{ type: mongoose_2.default.Schema.Types.ObjectId, ref: 'Reservation' }] }),
+    (0, mongoose_1.Prop)({ default: [], type: [{ type: mongoose_2.Types.ObjectId, ref: "Reservation" }] }),
     __metadata("design:type", Array)
 ], Restaurant.prototype, "reservations", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ default: [], type: [{ type: mongoose_2.default.Schema.Types.ObjectId, ref: 'Order' }] }),
+    (0, mongoose_1.Prop)({ default: [], type: [{ type: mongoose_2.Types.ObjectId, ref: "Order" }] }),
     __metadata("design:type", Array)
 ], Restaurant.prototype, "orders", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ default: [], type: [{ type: mongoose_2.default.Schema.Types.ObjectId, ref: 'Table' }] }),
+    (0, mongoose_1.Prop)({ default: [], type: [{ type: mongoose_2.Types.ObjectId, ref: "Table" }] }),
     __metadata("design:type", Array)
 ], Restaurant.prototype, "tables", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ default: [], type: [{ type: mongoose_2.default.Schema.Types.ObjectId, ref: 'Item' }] }),
+    (0, mongoose_1.Prop)({ default: [], type: [{ type: mongoose_2.Types.ObjectId, ref: "Item" }] }),
     __metadata("design:type", Array)
 ], Restaurant.prototype, "items", void 0);
 exports.Restaurant = Restaurant = __decorate([

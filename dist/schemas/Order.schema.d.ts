@@ -2,8 +2,9 @@ import { Document } from 'mongoose';
 export type OrderDocument = Order & Document;
 export declare class Order {
     restaurant_id: string;
+    reservation_id: string;
+    table_id: string;
     items_ordered: string[];
-    order_date: Date;
     order_status: string;
     readonly _id?: string;
 }
