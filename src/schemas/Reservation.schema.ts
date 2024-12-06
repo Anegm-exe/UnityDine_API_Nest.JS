@@ -1,15 +1,18 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 export type ReservationDocument = Reservation & Document;
 
 @Schema({ timestamps: true })
 export class Reservation {
-    @Prop({ required: true, ref: 'User' })
+    @Prop({ type: [{ type: Types.ObjectId, ref: "User" }], required: true })
     customer_id: string;
 
-    @Prop({ required: true, ref: 'Table'})
+    @Prop({ type: [{ type: Types.ObjectId, ref: "Table" }], required: true })
     table_id: string;
+
+    @Prop({ type: [{ type: Types.ObjectId, ref: "Restaurant" }], required: true })
+    restaurant_id: string;
 
     @Prop({ required: true })
     reservation_time: Date;
@@ -17,7 +20,10 @@ export class Reservation {
     @Prop({ required: true })
     end_time: Date;
 
-    @Prop({ default: 'Ready', enum:['Ready','Reserved']})
+    @Prop({ required: true })
+    guests: number;
+
+    @Prop({ default: 'Ready', enum:['Free','Pending','Reserved']})
     reservation_status: string;
 
     readonly _id?: string;
