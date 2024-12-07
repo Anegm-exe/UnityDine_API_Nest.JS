@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
 import { TableService } from './table.service';
-import { Table } from '../schemas/table.schema';
+import { Table } from 'schemas/table.schema';
 
 @Controller('table')
 export class TableController {
