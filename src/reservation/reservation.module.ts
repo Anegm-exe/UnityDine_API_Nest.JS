@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Reservation, ReservationSchema } from 'src/schemas/reservation.schema';
+import { Reservation, ReservationSchema } from '../schemas/reservation.schema';
 import { ReservationController } from './reservation.controller';
 import { ReservationService } from './reservation.service';
 
