@@ -22,14 +22,13 @@ let UserController = class UserController {
         this.userService = userService;
     }
     async register(createUserDto) {
-        const { email, password } = createUserDto;
+        const { email } = createUserDto;
         const existingUser = await this.userService.findByEmail(email);
         if (existingUser) {
             throw new common_1.BadRequestException('Invalid Registeration Attempt');
         }
-        const hashedPassword = await bcrypt.hash(password, 15);
-        const userWithHashedPassword = { ...createUserDto, password: hashedPassword };
-        return this.userService.create(userWithHashedPassword);
+        this.userService.create(createUserDto);
+        return createUserDto;
     }
     async login(credentials) {
         const { email, password } = credentials;
@@ -41,10 +40,7 @@ let UserController = class UserController {
         if (!isPasswordValid) {
             throw new common_1.UnauthorizedException('Invalid Login Attempt');
         }
-        return {
-            message: 'Login successful',
-            user,
-        };
+        return user;
     }
     async findAll() {
         return this.userService.findAll();

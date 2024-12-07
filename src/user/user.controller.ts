@@ -10,7 +10,7 @@ export class UserController {
     // register Func
     @Post('register')
     async register(@Body() createUserDto: User): Promise<User> {
-        const { email, password } = createUserDto;
+        const { email } = createUserDto;
 
         // Check if email already exists
         const existingUser = await this.userService.findByEmail(email);
@@ -18,15 +18,13 @@ export class UserController {
             throw new BadRequestException('Invalid Registeration Attempt');
         }
 
-        // Hash And Create User
-        const hashedPassword = await bcrypt.hash(password, 15);
-        const userWithHashedPassword = { ...createUserDto, password: hashedPassword };
-        return this.userService.create(userWithHashedPassword);
+        this.userService.create(createUserDto);
+        return createUserDto;
     }
 
     // Login Func
     @Post('login')
-    async login(@Body() credentials: { email: string; password: string }): Promise<{ message: string; user: User }> {
+    async login(@Body() credentials: { email: string; password: string }): Promise<User> {
         const { email, password } = credentials;
 
         // Find the user by email
@@ -41,11 +39,7 @@ export class UserController {
             throw new UnauthorizedException('Invalid Login Attempt');
         }
 
-        // Return a response (you can include a JWT token here if needed)
-        return {
-            message: 'Login successful',
-            user,
-        };
+        return user;
     }
 
     // All Single Supporting Funcs (Main Single Service Ones)

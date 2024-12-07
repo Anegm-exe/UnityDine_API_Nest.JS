@@ -7,10 +7,7 @@ export declare class UserController {
     login(credentials: {
         email: string;
         password: string;
-    }): Promise<{
-        message: string;
-        user: User;
-    }>;
+    }): Promise<User>;
     findAll(): Promise<User[]>;
     findOne(id: number): Promise<User>;
     update(id: number, updateUserDto: Partial<User>): Promise<User>;

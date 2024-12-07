@@ -19,8 +19,8 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "name", void 0);
 __decorate([
-    (0, mongoose_1.Prop)(),
-    __metadata("design:type", String)
+    (0, mongoose_1.Prop)({ required: false }),
+    __metadata("design:type", Number)
 ], User.prototype, "contact", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: true }),
@@ -35,8 +35,8 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true, enum: ['Admin', 'Customer'] }),
-    __metadata("design:type", String)
+    (0, mongoose_1.Prop)({ required: true, default: false }),
+    __metadata("design:type", Boolean)
 ], User.prototype, "role", void 0);
 exports.User = User = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
