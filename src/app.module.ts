@@ -10,7 +10,7 @@ import { TableModule } from './table/table.module';
 import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
-    imports: [MongooseModule.forRoot('mongodb+srv://dbUser:ClRDnHMGCWJu8JpO@unitydine.jnzpu.mongodb.net/UnityDine'),
+    imports: [MongooseModule.forRoot('mongodb+srv://Negm:tnMBfFiZeBrweSH6@maincluster.2sx9h.mongodb.net/'),
         ItemModule,
         OrderModule, 
         UserModule, 
