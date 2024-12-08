@@ -377,3 +377,4 @@ Thumbs.db
 
 # Future Safty change (If Repo Goes Public)
 # .env
+.vercel
