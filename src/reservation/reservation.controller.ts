@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
 import { ReservationService } from './reservation.service';
-import { Reservation } from '../schemas/reservation.schema';
+import { Reservation } from './model/reservation.schema';
 
 @Controller('reservations')
 export class ReservationController {

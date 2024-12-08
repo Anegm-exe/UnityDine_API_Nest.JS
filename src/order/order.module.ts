@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Order, OrderSchema } from '../schemas/order.schema';
+import { Order, OrderSchema } from './model/order.schema';
 import { OrderController } from './order.controller';
 import { OrderService } from './order.service';
 

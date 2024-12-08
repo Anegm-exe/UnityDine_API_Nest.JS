@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { UserService } from './user.service';
-import { User } from '../schemas/user.schema';
+import { User } from './model/user.schema';
 import * as bcrypt from 'bcrypt';
 
 @Controller('users')

@@ -1,9 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document, Types } from 'mongoose';
-import { Reservation } from './reservation.schema';
-import { Order } from './order.schema';
-import { Table } from './table.schema';
-import { Item } from './item.schema';
+import { Document, Types } from 'mongoose';
 
 export type RestaurantDocument = Restaurant & Document;
 
@@ -22,16 +18,16 @@ export class Restaurant {
     rating: number;
 
     @Prop({ default: [], type: [{ type: Types.ObjectId, ref: "Reservation" }] })
-    reservations: Reservation[];
+    reservations: string[];
 
     @Prop({ default: [], type: [{ type: Types.ObjectId, ref: "Order" }] })
-    orders: Order[]
+    orders: string[]
 
     @Prop({ default: [], type: [{ type: Types.ObjectId, ref: "Table" }] })
-    tables: Table[]
+    tables: string[]
 
     @Prop({ default: [], type: [{ type: Types.ObjectId, ref: "Item" }]})
-    items: Item[]
+    items: string[]
 
     readonly _id?: string;
 }

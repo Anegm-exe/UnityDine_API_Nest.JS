@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
 import { RestaurantService } from './restaurant.service';
-import { Restaurant } from '../schemas/restaurant.schema';
+import { Restaurant } from './model/restaurant.schema';
 
 @Controller('restaurants')
 export class RestaurantController {
