@@ -18,8 +18,8 @@ export class UserController {
             throw new BadRequestException('Invalid Registeration Attempt');
         }
 
-        this.userService.create(createUserDto);
-        return createUserDto;
+        const createdUser = await this.userService.create(createUserDto);
+        return createdUser;
     }
 
     // Login Func

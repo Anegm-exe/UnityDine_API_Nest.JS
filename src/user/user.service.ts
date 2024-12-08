@@ -14,7 +14,7 @@ export class UserService {
         const hashedPassword = await bcrypt.hash(password, 15);
         const userWithHashedPassword = { ...user, password: hashedPassword };
         const newUser = new this.userModel(userWithHashedPassword);
-        return newUser.save();
+        return await newUser.save();
     }
 
     // Get All Users Existing
