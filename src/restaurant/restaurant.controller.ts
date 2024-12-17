@@ -9,29 +9,26 @@ export class RestaurantController {
     // All Single Supporting Funcs (Main Single Service Ones)
     @Post()
     async create(@Body() createRestaurantDto: Restaurant): Promise<Restaurant> {
-        return this.restaurantService.create(createRestaurantDto);
+        return await this.restaurantService.create(createRestaurantDto);
     }
 
     @Get()
     async findAll(): Promise<Restaurant[]> {
-        return this.restaurantService.findAll();
+        return await this.restaurantService.findAll();
     }
 
     @Get(':id')
     async findOne(@Param('id') id: number): Promise<Restaurant> {
-        return this.restaurantService.findOne(id);
+        return await this.restaurantService.findOne(id);
     }
 
     @Put(':id')
-    async update(
-        @Param('id') id: number,
-        @Body() updateRestaurantDto: Partial<Restaurant>,
-    ): Promise<Restaurant> {
-        return this.restaurantService.update(id, updateRestaurantDto);
+    async update(@Param('id') id: number,@Body() updateRestaurantDto: Partial<Restaurant>): Promise<Restaurant> {
+        return await this.restaurantService.update(id, updateRestaurantDto);
     }
 
     @Delete(':id')
     async delete(@Param('id') id: number): Promise<void> {
-        return this.restaurantService.delete(id);
+        return await this.restaurantService.delete(id);
     }
 }

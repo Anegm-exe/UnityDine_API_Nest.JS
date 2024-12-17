@@ -2,7 +2,7 @@ import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common'
 import { TableService } from './table.service';
 import { Table } from './model/table.schema';
 
-@Controller('table')
+@Controller('tables')
 export class TableController {
     constructor(private readonly seatingService: TableService) { }
 
@@ -22,11 +22,13 @@ export class TableController {
         return this.seatingService.findOne(id);
     }
 
+    @Get('restaurant/:restaurantId')
+    async findByRestaurantId(@Param('restaurantId') restaurantId: string): Promise<Table[]> {
+        return this.seatingService.findByRestaurantId(restaurantId);
+    }
+
     @Put(':id')
-    async update(
-        @Param('id') id: number,
-        @Body() updateSeatingDto: Partial<Table>,
-    ): Promise<Table> {
+    async update(@Param('id') id: number,@Body() updateSeatingDto: Partial<Table>): Promise<Table> {
         return this.seatingService.update(id, updateSeatingDto);
     }
 

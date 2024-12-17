@@ -17,16 +17,23 @@ export class ReservationController {
         return this.reservationService.findAll();
     }
 
+    @Get('user/:userId')
+    async findByUserId(@Param('userId') userId: string): Promise<Reservation[]> {
+        return this.reservationService.findByUserId(userId);
+    }
+
+    @Get('restaurant/:restaurantId')
+    async findByRestaurantId(@Param('restaurantId') restaurantId: string): Promise<Reservation[]> {
+        return this.reservationService.findByRestaurantId(restaurantId);
+    }
+
     @Get(':id')
     async findOne(@Param('id') id: number): Promise<Reservation> {
         return this.reservationService.findOne(id);
     }
 
     @Put(':id')
-    async update(
-        @Param('id') id: number,
-        @Body() updateReservationDto: Partial<Reservation>,
-    ): Promise<Reservation> {
+    async update(@Param('id') id: number,@Body() updateReservationDto: Partial<Reservation>): Promise<Reservation> {
         return this.reservationService.update(id, updateReservationDto);
     }
 

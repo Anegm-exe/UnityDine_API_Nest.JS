@@ -17,16 +17,16 @@ export class Restaurant {
     @Prop({ default: 0, min: 0, max: 5 })
     rating: number;
 
-    @Prop({ default: [], type: [{ type: Types.ObjectId, ref: "Reservation" }] })
+    @Prop({ default: [], type: Types.ObjectId, ref: "Reservation" })
     reservations: string[];
 
-    @Prop({ default: [], type: [{ type: Types.ObjectId, ref: "Order" }] })
+    @Prop({ default: [], type: Types.ObjectId, ref: "Order" })
     orders: string[]
 
-    @Prop({ default: [], type: [{ type: Types.ObjectId, ref: "Table" }] })
+    @Prop({ default: [], type: Types.ObjectId, ref: "Table" })
     tables: string[]
 
-    @Prop({ default: [], type: [{ type: Types.ObjectId, ref: "Item" }]})
+    @Prop({ default: [], type: Types.ObjectId, ref: "Item" })
     items: string[]
 
     readonly _id?: string;

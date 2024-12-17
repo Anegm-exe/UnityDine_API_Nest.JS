@@ -5,13 +5,13 @@ export type ReservationDocument = Reservation & Document;
 
 @Schema({ timestamps: true })
 export class Reservation {
-    @Prop({ type: [{ type: Types.ObjectId, ref: "User" }], required: true })
+    @Prop({ type: Types.ObjectId, ref: "User", required: true })
     customer_id: string;
 
-    @Prop({ type: [{ type: Types.ObjectId, ref: "Table" }], required: true })
+    @Prop({ type: Types.ObjectId, ref: "Table", required: true })
     table_id: string;
 
-    @Prop({ type: [{ type: Types.ObjectId, ref: "Restaurant" }], required: true })
+    @Prop({ type: Types.ObjectId, ref: "Restaurant", required: true })
     restaurant_id: string;
 
     @Prop({ required: true })
@@ -23,7 +23,7 @@ export class Reservation {
     @Prop({ required: true })
     guests: number;
 
-    @Prop({ default: 'Ready', enum:['Free','Pending','Reserved']})
+    @Prop({ default: 'Ready', enum: ['Pending','Reserved','Complete']})
     reservation_status: string;
 
     readonly _id?: string;

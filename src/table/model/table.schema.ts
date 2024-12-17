@@ -5,10 +5,10 @@ export type TableDocument = Table & Document;
 
 @Schema({ timestamps: true })
 export class Table {
-    @Prop({ type: [{ type: Types.ObjectId, ref: "Restaurant" }], required: true })
+    @Prop({ type: Types.ObjectId, ref: "Restaurant", required: false })
     restaurant_id: string;
 
-    @Prop({ type: [{ type: Types.ObjectId, ref: "Reservation" }], required: false })
+    @Prop({ type: Types.ObjectId, ref: "Reservation", required: false })
     reservation_id: string;
 
     @Prop({ required: true, min: 1 })

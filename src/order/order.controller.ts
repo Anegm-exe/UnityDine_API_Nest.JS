@@ -23,10 +23,7 @@ export class OrderController {
     }
 
     @Put(':id')
-    async update(
-        @Param('id') id: number,
-        @Body() updateOrderDto: Partial<Order>,
-    ): Promise<Order> {
+    async update(@Param('id') id: number,@Body() updateOrderDto: Partial<Order>): Promise<Order> {
         return this.orderService.update(id, updateOrderDto);
     }
 

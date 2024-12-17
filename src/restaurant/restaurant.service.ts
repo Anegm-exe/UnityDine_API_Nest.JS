@@ -15,7 +15,7 @@ export class RestaurantService {
 
     // Get All Restaurants From The Table
     async findAll(): Promise<Restaurant[]> {
-        return this.restaurantModel.find().exec();
+        return await this.restaurantModel.find().exec();
     }
 
     // Find A Specific Restaurant

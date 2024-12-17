@@ -22,11 +22,13 @@ export class ItemController {
         return this.itemService.findOne(id);
     }
 
+    @Get('restaurant/:restaurantId')
+    async findByRestaurantId(@Param('restaurantId') restaurantId: string): Promise<Item[]> {
+        return this.itemService.findByRestaurantId(restaurantId);
+    }
+
     @Put(':id')
-    async update(
-        @Param('id') id: number,
-        @Body() updateItemDto: Partial<Item>,
-    ): Promise<Item> {
+    async update(@Param('id') id: number,@Body() updateItemDto: Partial<Item>): Promise<Item> {
         return this.itemService.update(id, updateItemDto);
     }
 

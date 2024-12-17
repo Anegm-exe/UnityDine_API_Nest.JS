@@ -5,13 +5,13 @@ export type OrderDocument = Order & Document;
 
 @Schema({ timestamps: true })
 export class Order {
-    @Prop({ type: [{ type: Types.ObjectId, ref: "Restaurant" }], required: true })
+    @Prop({ type: Types.ObjectId, ref: "Restaurant", required: true })
     restaurant_id: string;
 
-    @Prop({ type: [{ type: Types.ObjectId, ref: "Reservation" }], required: false })
+    @Prop({ type: Types.ObjectId, ref: "Reservation", required: true })
     reservation_id: string;
 
-    @Prop({ type: [{ type: Types.ObjectId, ref: "Table" }], required: true })
+    @Prop({ type: Types.ObjectId, ref: "Table", required: true })
     table_id: string;
 
     @Prop({ required: true })

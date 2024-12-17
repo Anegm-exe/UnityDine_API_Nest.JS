@@ -5,7 +5,7 @@ export type ItemDocument = Item & Document;
 
 @Schema({ timestamps: true })
 export class Item {
-    @Prop({ type: [{ type: Types.ObjectId, ref: "Restaurant" }], required: true })
+    @Prop({ type: Types.ObjectId, ref: "Restaurant", required: true })
     restaurant_id: string;
 
     @Prop({ required: true })

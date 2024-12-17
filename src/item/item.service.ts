@@ -27,6 +27,10 @@ export class ItemService {
         return item;
     }
 
+    async findByRestaurantId(restaurantId: string): Promise<Item[]> {
+        return await this.itemModel.find({ restaurant_id: restaurantId }).exec();
+    }
+
     // Update The Content Of An Menu Item
     async update(id: number, updateData: Partial<Item>): Promise<Item> {
         const updatedItem = await this.itemModel

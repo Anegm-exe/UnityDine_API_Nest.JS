@@ -27,6 +27,10 @@ export class TableService {
         return table;
     }
 
+    async findByRestaurantId(restaurantId: string): Promise<Table[]> {
+        return await this.tableModel.find({ restaurant_id: restaurantId }).exec();
+    }
+
     // Update The Content Of An Table
     async update(id: number, updateData: Partial<Table>): Promise<Table> {
         const updatedTable = await this.tableModel
