@@ -18,17 +18,17 @@ export class RestaurantController {
     }
 
     @Get(':id')
-    async findOne(@Param('id') id: number): Promise<Restaurant> {
+    async findOne(@Param('id') id: string): Promise<Restaurant> {
         return await this.restaurantService.findOne(id);
     }
 
     @Put(':id')
-    async update(@Param('id') id: number,@Body() updateRestaurantDto: Partial<Restaurant>): Promise<Restaurant> {
+    async update(@Param('id') id: string,@Body() updateRestaurantDto: Partial<Restaurant>): Promise<Restaurant> {
         return await this.restaurantService.update(id, updateRestaurantDto);
     }
 
     @Delete(':id')
-    async delete(@Param('id') id: number): Promise<void> {
+    async delete(@Param('id') id: string): Promise<void> {
         return await this.restaurantService.delete(id);
     }
 }

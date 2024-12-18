@@ -2,16 +2,30 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Table, TableDocument } from './model/table.schema';
+import { RestaurantService } from 'src/restaurant/restaurant.service';
 
 @Injectable()
 export class TableService {
-    constructor(@InjectModel(Table.name) private tableModel: Model<TableDocument>) { }
+    constructor(
+        @InjectModel(Table.name) private tableModel: Model<TableDocument>,
+        private readonly restaurantService: RestaurantService
+    ) { }
 
     // Create A Table With Data Provided
-    async create(table: Table): Promise<Table> {
-        const newTable = new this.tableModel(table);
-        return newTable.save();
+    async create(createTableDto: Table): Promise<Table> {
+        // Create the table first
+        const createdTable = new this.tableModel(createTableDto);
+        const table = await createdTable.save();
+
+        // Add the table ID to the associated restaurant's `tables` array
+        const restaurant = await this.restaurantService.findOne(createTableDto.restaurant_id);
+        if (!restaurant) {
+            throw new NotFoundException(`Restaurant with ID ${createTableDto.restaurant_id} not found`);
+        }
+        await this.restaurantService.addTable(table.restaurant_id,table._id);
+        return createdTable;
     }
+ 
 
     // Get All Tables From The Table
     async findAll(): Promise<Table[]> {
@@ -19,7 +33,7 @@ export class TableService {
     }
 
     // Find A Specific Table
-    async findOne(id: number): Promise<Table> {
+    async findOne(id: string): Promise<Table> {
         const table = await this.tableModel.findOne({ _id: id }).exec();
         if (!table) {
             throw new NotFoundException(`Table with ID ${id} not found`);
@@ -32,7 +46,7 @@ export class TableService {
     }
 
     // Update The Content Of An Table
-    async update(id: number, updateData: Partial<Table>): Promise<Table> {
+    async update(id: string, updateData: Partial<Table>): Promise<Table> {
         const updatedTable = await this.tableModel
             .findOneAndUpdate({ _id: id }, updateData, { new: true })
             .exec();
@@ -43,7 +57,7 @@ export class TableService {
     }
 
     // Delete A Table
-    async delete(id: number): Promise<void> {
+    async delete(id: string): Promise<void> {
         const result = await this.tableModel.deleteOne({ _id: id }).exec();
         if (result.deletedCount === 0) {
             throw new NotFoundException(`Table with ID ${id} not found`);

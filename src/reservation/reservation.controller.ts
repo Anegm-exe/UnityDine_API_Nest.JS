@@ -28,17 +28,17 @@ export class ReservationController {
     }
 
     @Get(':id')
-    async findOne(@Param('id') id: number): Promise<Reservation> {
+    async findOne(@Param('id') id: string): Promise<Reservation> {
         return this.reservationService.findOne(id);
     }
 
     @Put(':id')
-    async update(@Param('id') id: number,@Body() updateReservationDto: Partial<Reservation>): Promise<Reservation> {
+    async update(@Param('id') id: string,@Body() updateReservationDto: Partial<Reservation>): Promise<Reservation> {
         return this.reservationService.update(id, updateReservationDto);
     }
 
     @Delete(':id')
-    async delete(@Param('id') id: number): Promise<void> {
+    async delete(@Param('id') id: string): Promise<void> {
         return this.reservationService.delete(id);
     }
 }

@@ -23,7 +23,7 @@ export class UserService {
     }
 
     // Find A Specific User by ID
-    async findOne(id: number): Promise<User> {
+    async findOne(id: string): Promise<User> {
         const user = await this.userModel.findOne({ _id: id }).exec();
         if (!user) {
             throw new NotFoundException(`User with ID ${id} not found`);
@@ -37,7 +37,7 @@ export class UserService {
     }
 
     // Update A User Based On New-Data
-    async update(id: number, updateData: Partial<User>): Promise<User> {
+    async update(id: string, updateData: Partial<User>): Promise<User> {
         const updatedUser = await this.userModel
             .findOneAndUpdate({ _id: id }, updateData, { new: true })
             .exec();
@@ -48,7 +48,7 @@ export class UserService {
     }
 
     // Delete A User
-    async delete(id: number): Promise<void> {
+    async delete(id: string): Promise<void> {
         const result = await this.userModel.deleteOne({ _id: id }).exec();
         if (result.deletedCount === 0) {
             throw new NotFoundException(`User with ID ${id} not found`);

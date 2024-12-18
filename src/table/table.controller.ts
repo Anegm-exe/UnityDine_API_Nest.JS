@@ -18,7 +18,7 @@ export class TableController {
     }
 
     @Get(':id')
-    async findOne(@Param('id') id: number): Promise<Table> {
+    async findOne(@Param('id') id: string): Promise<Table> {
         return this.seatingService.findOne(id);
     }
 
@@ -28,12 +28,12 @@ export class TableController {
     }
 
     @Put(':id')
-    async update(@Param('id') id: number,@Body() updateSeatingDto: Partial<Table>): Promise<Table> {
+    async update(@Param('id') id: string,@Body() updateSeatingDto: Partial<Table>): Promise<Table> {
         return this.seatingService.update(id, updateSeatingDto);
     }
 
     @Delete(':id')
-    async delete(@Param('id') id: number): Promise<void> {
+    async delete(@Param('id') id: string): Promise<void> {
         return this.seatingService.delete(id);
     }
 }

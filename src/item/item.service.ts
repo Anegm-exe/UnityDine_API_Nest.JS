@@ -2,15 +2,28 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Item, ItemDocument } from './model/item.schema';
+import { RestaurantService } from 'src/restaurant/restaurant.service';
 
 @Injectable()
 export class ItemService {
-    constructor(@InjectModel(Item.name) private itemModel: Model<ItemDocument>) { }
+    constructor(
+        @InjectModel(Item.name) private itemModel: Model<ItemDocument>,
+        private readonly restaurantService: RestaurantService
+    ) { }
 
     // Create A Menu Item With Data Provided
-    async create(item: Item): Promise<Item> {
-        const newItem = new this.itemModel(item);
-        return newItem.save();
+    async create(createItemDto: Item): Promise<Item> {
+        // Create the item first
+        const createdItem = new this.itemModel(createItemDto);
+        const item = await createdItem.save();
+
+        // Add the item ID to the associated restaurant's `items` array
+        const restaurant = await this.restaurantService.findOne(createItemDto.restaurant_id);
+        if (!restaurant) {
+            throw new NotFoundException(`Restaurant with ID ${createItemDto.restaurant_id} not found`);
+        }
+        await this.restaurantService.addItem(item.restaurant_id,item._id);
+        return createdItem;
     }
 
     // Get All Menu Items From The Table
@@ -19,7 +32,7 @@ export class ItemService {
     }
 
     // Find A Specific Menu Item by ID
-    async findOne(id: number): Promise<Item> {
+    async findOne(id: string): Promise<Item> {
         const item = await this.itemModel.findOne({ _id: id }).exec();
         if (!item) {
             throw new NotFoundException(`Item with ID ${id} not found`);
@@ -32,7 +45,7 @@ export class ItemService {
     }
 
     // Update The Content Of An Menu Item
-    async update(id: number, updateData: Partial<Item>): Promise<Item> {
+    async update(id: string, updateData: Partial<Item>): Promise<Item> {
         const updatedItem = await this.itemModel
             .findOneAndUpdate({ _id: id }, updateData, { new: true })
             .exec();
@@ -43,7 +56,7 @@ export class ItemService {
     }
 
     // Delete A Menu Item
-    async delete(id: number): Promise<void> {
+    async delete(id: string): Promise<void> {
         const result = await this.itemModel.deleteOne({ _id: id }).exec();
         if (result.deletedCount === 0) {
             throw new NotFoundException(`Item with ID ${id} not found`);

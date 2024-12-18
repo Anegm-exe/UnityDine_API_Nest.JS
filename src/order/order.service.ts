@@ -2,15 +2,28 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Order, OrderDocument } from './model/order.schema';
+import { RestaurantService } from 'src/restaurant/restaurant.service';
 
 @Injectable()
 export class OrderService {
-    constructor(@InjectModel(Order.name) private orderModel: Model<OrderDocument>) { }
+    constructor(
+        @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
+        private readonly restaurantService: RestaurantService
+    ) { }
 
     // Create A Order With Data Provided
-    async create(order: Order): Promise<Order> {
-        const newOrder = new this.orderModel(order);
-        return newOrder.save();
+    async create(createOrderDto: Order): Promise<Order> {
+        // Create the order first
+        const createdOrder = new this.orderModel(createOrderDto);
+        const order = await createdOrder.save();
+
+        // Add the order ID to the associated restaurant's `orders` array
+        const restaurant = await this.restaurantService.findOne(createOrderDto.restaurant_id);
+        if (!restaurant) {
+            throw new NotFoundException(`Restaurant with ID ${createOrderDto.restaurant_id} not found`);
+        }
+        await this.restaurantService.addOrder(order.restaurant_id,order._id);
+        return createdOrder;
     }
 
     // Get All Orders From The Table
@@ -19,7 +32,7 @@ export class OrderService {
     }
 
     // Find A Specific Order
-    async findOne(id: number): Promise<Order> {
+    async findOne(id: string): Promise<Order> {
         const order = await this.orderModel.findOne({ _id: id }).exec();
         if (!order) {
             throw new NotFoundException(`Order with ID ${id} not found`);
@@ -28,7 +41,7 @@ export class OrderService {
     }
 
     // Update The Content Of An Order
-    async update(id: number, updateData: Partial<Order>): Promise<Order> {
+    async update(id: string, updateData: Partial<Order>): Promise<Order> {
         const updatedOrder = await this.orderModel
             .findOneAndUpdate({ _id: id }, updateData, { new: true })
             .exec();
@@ -39,7 +52,7 @@ export class OrderService {
     }
 
     // Delete A Order
-    async delete(id: number): Promise<void> {
+    async delete(id: string): Promise<void> {
         const result = await this.orderModel.deleteOne({ _id: id }).exec();
         if (result.deletedCount === 0) {
             throw new NotFoundException(`Order with ID ${id} not found`);

@@ -5,7 +5,7 @@ export type TableDocument = Table & Document;
 
 @Schema({ timestamps: true })
 export class Table {
-    @Prop({ type: Types.ObjectId, ref: "Restaurant", required: false })
+    @Prop({ type: Types.ObjectId, ref: "Restaurant", required: true })
     restaurant_id: string;
 
     @Prop({ type: Types.ObjectId, ref: "Reservation", required: false })

@@ -49,17 +49,17 @@ export class UserController {
     }
 
     @Get(':id')
-    async findOne(@Param('id') id: number): Promise<User> {
+    async findOne(@Param('id') id: string): Promise<User> {
         return this.userService.findOne(id);
     }
 
     @Put(':id')
-    async update(@Param('id') id: number,@Body() updateUserDto: Partial<User>): Promise<User> {
+    async update(@Param('id') id: string,@Body() updateUserDto: Partial<User>): Promise<User> {
         return this.userService.update(id, updateUserDto);
     }
 
     @Delete(':id')
-    async delete(@Param('id') id: number): Promise<void> {
+    async delete(@Param('id') id: string): Promise<void> {
         return this.userService.delete(id);
     }
 }

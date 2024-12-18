@@ -3,31 +3,27 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Reservation, ReservationDocument } from './model/reservation.schema';
 import { Restaurant, RestaurantDocument } from '../restaurant/model/restaurant.schema';
+import { RestaurantService } from 'src/restaurant/restaurant.service';
 
 @Injectable()
 export class ReservationService {
     constructor(
         @InjectModel(Reservation.name) private reservationModel: Model<ReservationDocument>,
-        @InjectModel(Restaurant.name) private restaurantModel: Model<RestaurantDocument>
+        private readonly restaurantService: RestaurantService
     ) { }
 
     // Create A Reservation With Data Provided
     async create(createReservationDto: Reservation): Promise<Reservation> {
         // Create the reservation first
         const createdReservation = new this.reservationModel(createReservationDto);
-        await createdReservation.save();
+        const reservation = await createdReservation.save();
 
         // Add the reservation ID to the associated restaurant's `reservations` array
-        const restaurantId = createReservationDto.restaurant_id; // Assuming the DTO contains `restaurant_id`
-        const restaurant = await this.restaurantModel.findById(restaurantId);
-
+        const restaurant = await this.restaurantService.findOne(createReservationDto.restaurant_id);
         if (!restaurant) {
-            throw new NotFoundException(`Restaurant with ID ${restaurantId} not found`);
+            throw new NotFoundException(`Restaurant with ID ${createReservationDto.restaurant_id} not found`);
         }
-
-        restaurant.reservations.push(createdReservation._id); // Add the reservation ID
-        await restaurant.save(); // Save the updated restaurant document
-
+        await this.restaurantService.addReservation(reservation.restaurant_id,reservation._id);
         return createdReservation;
     }
 
@@ -46,7 +42,7 @@ export class ReservationService {
     }
 
     // Find A Specific Reservation Item by ID
-    async findOne(id: number): Promise<Reservation> {
+    async findOne(id: string): Promise<Reservation> {
         const reservation = await this.reservationModel.findOne({ _id: id }).exec();
         if (!reservation) {
             throw new NotFoundException(`Reservation with ID ${id} not found`);
@@ -55,7 +51,7 @@ export class ReservationService {
     }
 
     // Update The Content Of A Reservation
-    async update(id: number, updateData: Partial<Reservation>): Promise<Reservation> {
+    async update(id: string, updateData: Partial<Reservation>): Promise<Reservation> {
         const updatedReservation = await this.reservationModel
             .findOneAndUpdate({ _id: id }, updateData, { new: true })
             .exec();
@@ -66,7 +62,7 @@ export class ReservationService {
     }
 
     // Delete A Reservation
-    async delete(id: number): Promise<void> {
+    async delete(id: string): Promise<void> {
         const result = await this.reservationModel.deleteOne({ _id: id }).exec();
         if (result.deletedCount === 0) {
             throw new NotFoundException(`Reservation with ID ${id} not found`);

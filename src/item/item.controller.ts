@@ -18,7 +18,7 @@ export class ItemController {
     }
 
     @Get(':id')
-    async findOne(@Param('id') id: number): Promise<Item> {
+    async findOne(@Param('id') id: string): Promise<Item> {
         return this.itemService.findOne(id);
     }
 
@@ -28,12 +28,12 @@ export class ItemController {
     }
 
     @Put(':id')
-    async update(@Param('id') id: number,@Body() updateItemDto: Partial<Item>): Promise<Item> {
+    async update(@Param('id') id: string,@Body() updateItemDto: Partial<Item>): Promise<Item> {
         return this.itemService.update(id, updateItemDto);
     }
 
     @Delete(':id')
-    async delete(@Param('id') id: number): Promise<void> {
+    async delete(@Param('id') id: string): Promise<void> {
         return this.itemService.delete(id);
     }
 }

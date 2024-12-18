@@ -18,17 +18,17 @@ export class OrderController {
     }
 
     @Get(':id')
-    async findOne(@Param('id') id: number): Promise<Order> {
+    async findOne(@Param('id') id: string): Promise<Order> {
         return this.orderService.findOne(id);
     }
 
     @Put(':id')
-    async update(@Param('id') id: number,@Body() updateOrderDto: Partial<Order>): Promise<Order> {
+    async update(@Param('id') id: string,@Body() updateOrderDto: Partial<Order>): Promise<Order> {
         return this.orderService.update(id, updateOrderDto);
     }
 
     @Delete(':id')
-    async delete(@Param('id') id: number): Promise<void> {
+    async delete(@Param('id') id: string): Promise<void> {
         return this.orderService.delete(id);
     }
 }

@@ -15,10 +15,6 @@ import { RestaurantService } from './restaurant.service';
     ],
     controllers: [RestaurantController],
     providers: [RestaurantService],
-    exports: [
-        MongooseModule.forFeature([
-            { name: Restaurant.name, schema: RestaurantSchema },
-        ]),
-    ],
+    exports: [RestaurantService],
 })
 export class RestaurantModule {}
