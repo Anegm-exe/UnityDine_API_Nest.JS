@@ -56,11 +56,28 @@ export class TableService {
         return updatedTable;
     }
 
-    // Delete A Table
+    // Delete A table
     async delete(id: string): Promise<void> {
-        const result = await this.tableModel.deleteOne({ _id: id }).exec();
-        if (result.deletedCount === 0) {
+        const table = await this.tableModel.findByIdAndDelete({ _id: id }).exec();
+        // is deleted
+        if (!table) {
             throw new NotFoundException(`Table with ID ${id} not found`);
         }
+        // delete the table ID to the associated restaurant's `tables` array
+        const restaurant = await this.restaurantService.findOne(table.restaurant_id);
+        if (!restaurant) {
+            throw new NotFoundException(`Restaurant with ID ${table.restaurant_id} not found`);
+        }
+        await this.restaurantService.deleteTable(table.restaurant_id,table._id);
+    }
+
+    // drop reservation
+    async deleteReservation(id: string,reservation_id:string): Promise<Table> {
+        const table = await this.tableModel.findByIdAndUpdate({_id:id},{$pop:{reservation_ids:reservation_id}},{new:true}).exec();
+        // check if it failed
+        if (!table) {
+            throw new NotFoundException(`Table with ID ${id} not found`);
+        }
+        return table;
     }
 }

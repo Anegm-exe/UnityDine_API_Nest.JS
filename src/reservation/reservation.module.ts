@@ -4,6 +4,8 @@ import { Reservation, ReservationSchema } from './model/reservation.schema';
 import { ReservationController } from './reservation.controller';
 import { ReservationService } from './reservation.service';
 import { RestaurantModule } from '../restaurant/restaurant.module';
+import { TableModule } from 'src/table/table.module';
+import { OrderModule } from 'src/order/order.module';
 
 @Module({
     imports: [
@@ -14,6 +16,8 @@ import { RestaurantModule } from '../restaurant/restaurant.module';
             }
         ]),
         RestaurantModule,
+        TableModule,
+        OrderModule
     ],
     controllers: [ReservationController],
     providers: [ReservationService],

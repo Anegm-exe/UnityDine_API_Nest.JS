@@ -51,11 +51,27 @@ export class OrderService {
         return updatedOrder;
     }
 
-    // Delete A Order
+    // Delete A order
     async delete(id: string): Promise<void> {
-        const result = await this.orderModel.deleteOne({ _id: id }).exec();
-        if (result.deletedCount === 0) {
+        const order = await this.orderModel.findByIdAndDelete({ _id: id }).exec();
+        // is deleted
+        if (!order) {
             throw new NotFoundException(`Order with ID ${id} not found`);
         }
+        // delete the order ID to the associated restaurant's `orders` array
+        const restaurant = await this.restaurantService.findOne(order.restaurant_id);
+        if (!restaurant) {
+            throw new NotFoundException(`Restaurant with ID ${order.restaurant_id} not found`);
+        }
+        await this.restaurantService.deleteOrder(order.restaurant_id,order._id);
+    }
+
+    // delete orders by reservation
+    async deleteByReservation(reservation_id: string): Promise<void> {
+        const orders = await this.orderModel.find({ reservation_id: reservation_id }).exec();
+        // loop and delete orders
+        Promise.all(orders.map(async (order)=>{
+            await this.delete(order._id);
+        }));
     }
 }

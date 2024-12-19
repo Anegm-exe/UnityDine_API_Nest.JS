@@ -4,12 +4,16 @@ import { Model } from 'mongoose';
 import { Reservation, ReservationDocument } from './model/reservation.schema';
 import { Restaurant, RestaurantDocument } from '../restaurant/model/restaurant.schema';
 import { RestaurantService } from 'src/restaurant/restaurant.service';
+import { TableService } from 'src/table/table.service';
+import { OrderService } from 'src/order/order.service';
 
 @Injectable()
 export class ReservationService {
     constructor(
         @InjectModel(Reservation.name) private reservationModel: Model<ReservationDocument>,
-        private readonly restaurantService: RestaurantService
+        private readonly restaurantService: RestaurantService,
+        private readonly tableService: TableService,
+        private readonly orderService: OrderService
     ) { }
 
     // Create A Reservation With Data Provided
@@ -61,11 +65,20 @@ export class ReservationService {
         return updatedReservation;
     }
 
-    // Delete A Reservation
+    // Delete A reservation
     async delete(id: string): Promise<void> {
-        const result = await this.reservationModel.deleteOne({ _id: id }).exec();
-        if (result.deletedCount === 0) {
+        const reservation = await this.reservationModel.findByIdAndDelete({ _id: id }).exec();
+        // is deleted
+        if (!reservation) {
             throw new NotFoundException(`Reservation with ID ${id} not found`);
         }
+        // delete the reservation ID to the associated restaurant's `reservations` array
+        const restaurant = await this.restaurantService.findOne(reservation.restaurant_id);
+        if (!restaurant) {
+            throw new NotFoundException(`Restaurant with ID ${reservation.restaurant_id} not found`);
+        }
+        await this.restaurantService.deleteReservation(reservation.restaurant_id,reservation._id);
+        await this.tableService.deleteReservation(reservation.table_id,reservation._id);
+        await this.orderService.deleteByReservation(reservation.restaurant_id)
     }
 }

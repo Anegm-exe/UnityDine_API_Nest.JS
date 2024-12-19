@@ -56,28 +56,64 @@ export class RestaurantService {
 
     // push order in array
     async addOrder(id: string, order_id: string): Promise<Restaurant> {
-        const updatedOrder = await this.restaurantModel.findByIdAndUpdate({_id:id},{ $push: { orders: order_id}},{new:true});
-        if(!updatedOrder) {
+        const updatedRestaurant = await this.restaurantModel.findByIdAndUpdate({_id:id},{ $push: { orders: order_id}},{new:true});
+        if(!updatedRestaurant) {
             throw new NotFoundException(`Restaurant with ID ${id} not found`);
         }
-        return updatedOrder;
+        return updatedRestaurant;
     }
 
     // push item in array
     async addItem(id: string, item_id: string): Promise<Restaurant> {
-        const updatedItem = await this.restaurantModel.findByIdAndUpdate({_id:id},{ $push: { items: item_id}},{new:true});
-        if(!updatedItem) {
+        const updatedRestaurant = await this.restaurantModel.findByIdAndUpdate({_id:id},{ $push: { items: item_id}},{new:true});
+        if(!updatedRestaurant) {
             throw new NotFoundException(`Restaurant with ID ${id} not found`);
         }
-        return updatedItem;
+        return updatedRestaurant;
     }
 
     // push table in array
     async addTable(id: string, table_id: string): Promise<Restaurant> {
-        const updatedTable = await this.restaurantModel.findByIdAndUpdate({_id:id},{ $push: { tables: table_id}},{new:true});
-        if(!updatedTable) {
+        const updatedRestaurant = await this.restaurantModel.findByIdAndUpdate({_id:id},{ $push: { tables: table_id}},{new:true});
+        if(!updatedRestaurant) {
             throw new NotFoundException(`Restaurant with ID ${id} not found`);
         }
-        return updatedTable;
+        return updatedRestaurant;
+    }
+
+    // pop reservation in array
+    async deleteReservation(id: string, reservation_id: string): Promise<Restaurant> {
+        const updatedRestaurant = await this.restaurantModel.findByIdAndUpdate({_id:id},{ $pop: { reservations: reservation_id}},{new:true});
+        if(!updatedRestaurant) {
+            throw new NotFoundException(`Restaurant with ID ${id} not found`);
+        }
+        return updatedRestaurant;
+    }
+
+    // pop order in array
+    async deleteOrder(id: string, order_id: string): Promise<Restaurant> {
+        const updatedRestaurant = await this.restaurantModel.findByIdAndUpdate({_id:id},{ $pop: { orders: order_id}},{new:true});
+        if(!updatedRestaurant) {
+            throw new NotFoundException(`Restaurant with ID ${id} not found`);
+        }
+        return updatedRestaurant;
+    }
+
+    // pop item in array
+    async deleteItem(id: string, item_id: string): Promise<Restaurant> {
+        const updatedRestaurant = await this.restaurantModel.findByIdAndUpdate({_id:id},{ $pop: { items: item_id}},{new:true});
+        if(!updatedRestaurant) {
+            throw new NotFoundException(`Restaurant with ID ${id} not found`);
+        }
+        return updatedRestaurant;
+    }
+
+    // pop table in array
+    async deleteTable(id: string, table_id: string): Promise<Restaurant> {
+        const updatedRestaurant = await this.restaurantModel.findByIdAndUpdate({_id:id},{ $pop: { tables: table_id}},{new:true});
+        if(!updatedRestaurant) {
+            throw new NotFoundException(`Restaurant with ID ${id} not found`);
+        }
+        return updatedRestaurant;
     }
 }

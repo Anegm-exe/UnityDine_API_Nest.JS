@@ -57,9 +57,16 @@ export class ItemService {
 
     // Delete A Menu Item
     async delete(id: string): Promise<void> {
-        const result = await this.itemModel.deleteOne({ _id: id }).exec();
-        if (result.deletedCount === 0) {
+        const item = await this.itemModel.findByIdAndDelete({ _id: id }).exec();
+        // is deleted
+        if (!item) {
             throw new NotFoundException(`Item with ID ${id} not found`);
         }
+        // delete the item ID to the associated restaurant's `items` array
+        const restaurant = await this.restaurantService.findOne(item.restaurant_id);
+        if (!restaurant) {
+            throw new NotFoundException(`Restaurant with ID ${item.restaurant_id} not found`);
+        }
+        await this.restaurantService.deleteItem(item.restaurant_id,item._id);
     }
 }
