@@ -19,8 +19,8 @@ export class ReservationService {
     // Create A Reservation With Data Provided
     async create(createReservationDto: Reservation): Promise<Reservation> {
         // Create the reservation first
-        const createdReservation = new this.reservationModel(createReservationDto);
-        const reservation = await createdReservation.save();
+        const createdReservation = await this.reservationModel.create(createReservationDto);
+                const reservation = await createdReservation.save();
 
         // Add the reservation ID to the associated restaurant's `reservations` array
         const restaurant = await this.restaurantService.findOne(createReservationDto.restaurant_id);
