@@ -83,26 +83,16 @@ describe('ReservationService', () => {
                 guests: 4,
                 reservation_status: 'Pending',
             };
-            const mockRestaurant = { _id: createReservationDto.restaurant_id };
-    mockRestaurantService.findOne.mockResolvedValue(mockRestaurant);
 
-    (reservationModel.create as jest.Mock).mockResolvedValue(Promise.resolve({
-        ...createReservationDto,
-        _id: 'testReservationId',
-    }));
+            const result = await service.create(createReservationDto);// it uses the mock resevation form line 15 instead of the dto in line 77 
 
-    const result = await service.create(createReservationDto);
-
-    expect(mockReservationModel.create).toHaveBeenCalledWith(createReservationDto);
-    expect(mockRestaurantService.addReservation).toHaveBeenCalledWith(
-        createReservationDto.restaurant_id,
-        'testReservationId', // Use the directly added _id
-    );
-    expect(result).toEqual({
-        ...createReservationDto,
-        _id: 'testReservationId', // Include the _id in the expected result
-    });
-});
+            expect(mockReservationModel.create).toHaveBeenCalledWith(createReservationDto);
+            expect(mockRestaurantService.addReservation).toHaveBeenCalledWith(
+                createReservationDto.restaurant_id,
+                mockReservation._id,
+            );
+            expect(result).toEqual(mockReservation);
+        });
         it('Should throw not found exception if restaurant doesnt exist', async () => {
             const createReservationDto: Reservation = {
                 customer_id: 'userId',
