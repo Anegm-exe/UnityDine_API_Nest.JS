@@ -11,6 +11,9 @@ import { Model } from 'mongoose';
 describe('ReservationService', () => {
     let service: ReservationService;
     let reservationModel: Model<Reservation>;
+    let restaurantService: RestaurantService;
+    let tableService: TableService;
+    let orderService: OrderService;
 
     const mockReservation = {
         _id: 'testId',
@@ -23,21 +26,8 @@ describe('ReservationService', () => {
         reservation_status: 'Pending',
     };
 
-    const mockCreatedReservation = {
-        ...mockReservation,
-        save: jest.fn().mockResolvedValue(mockReservation),
-    };
-
-    const mockReservationModel = {
-        find: jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue([mockReservation]) }),
-        findOne: jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(mockReservation) }),
-        findByIdAndDelete: jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(mockReservation) }),
-        findOneAndUpdate: jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(mockReservation) }),
-        create: jest.fn().mockReturnValue(mockCreatedReservation),
-    };
-
     const mockRestaurantService = {
-        findOne: jest.fn().mockResolvedValue({ _id: 'testRestaurantId' }),
+        findOne: jest.fn(),
         addReservation: jest.fn(),
         deleteReservation: jest.fn(),
     };
@@ -50,6 +40,14 @@ describe('ReservationService', () => {
         deleteByReservation: jest.fn(),
     };
 
+    const mockReservationModel = {
+        create: jest.fn(),
+        find: jest.fn(),
+        findOne: jest.fn(),
+        findByIdAndDelete: jest.fn(),
+        findOneAndUpdate: jest.fn(),
+    };
+
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
@@ -58,14 +56,30 @@ describe('ReservationService', () => {
                     provide: getModelToken(Reservation.name),
                     useValue: mockReservationModel,
                 },
-                { provide: RestaurantService, useValue: mockRestaurantService },
-                { provide: TableService, useValue: mockTableService },
-                { provide: OrderService, useValue: mockOrderService },
+                {
+                    provide: RestaurantService,
+                    useValue: mockRestaurantService,
+                },
+                {
+                    provide: TableService,
+                    useValue: mockTableService,
+                },
+                {
+                    provide: OrderService,
+                    useValue: mockOrderService,
+                },
             ],
         }).compile();
 
         service = module.get<ReservationService>(ReservationService);
         reservationModel = module.get<Model<Reservation>>(getModelToken(Reservation.name));
+        restaurantService = module.get<RestaurantService>(RestaurantService);
+        tableService = module.get<TableService>(TableService);
+        orderService = module.get<OrderService>(OrderService);
+    });
+
+    beforeEach(() => {
+        jest.clearAllMocks();
     });
 
     it('should be defined', () => {
@@ -73,162 +87,150 @@ describe('ReservationService', () => {
     });
 
     describe('create', () => {
-        it('should create and return a reservation', async () => {
-            const createReservationDto: Reservation = {
-                customer_id: 'userId',
-                table_id: 'tableId',
-                restaurant_id: 'restaurantId',
-                reservation_time: new Date(),
-                end_time: new Date(),
-                guests: 4,
-                reservation_status: 'Pending',
-            };
+        const createReservationDto: Reservation = {
+            customer_id: 'testCustomerId',
+            table_id: 'testTableId',
+            restaurant_id: 'testRestaurantId',
+            reservation_time: new Date(),
+            end_time: new Date(),
+            guests: 2,
+            reservation_status: 'Pending',
+        };
 
-            const result = await service.create(createReservationDto);// it uses the mock resevation form line 15 instead of the dto in line 77 
+        it('should successfully create a reservation', async () => {
+            const savedReservation = { ...mockReservation, save: jest.fn().mockResolvedValue(mockReservation) };
+            mockReservationModel.create.mockResolvedValue(savedReservation);
+            mockRestaurantService.findOne.mockResolvedValue({ _id: 'testRestaurantId' });
+
+            const result = await service.create(createReservationDto);
 
             expect(mockReservationModel.create).toHaveBeenCalledWith(createReservationDto);
+            expect(mockRestaurantService.findOne).toHaveBeenCalledWith(createReservationDto.restaurant_id);
             expect(mockRestaurantService.addReservation).toHaveBeenCalledWith(
                 createReservationDto.restaurant_id,
-                mockReservation._id,
+                mockReservation._id
             );
-            expect(result).toEqual(mockReservation);
+            expect(result).toEqual(savedReservation);
         });
-        it('Should throw not found exception if restaurant doesnt exist', async () => {
-            const createReservationDto: Reservation = {
-                customer_id: 'userId',
-                table_id: 'tableId',
-                restaurant_id: 'restaurantId',
-                reservation_time: new Date(),
-                end_time: new Date(),
-                guests: 4,
-                reservation_status: 'Pending',
-            };
-            (reservationModel.create as jest.Mock).mockResolvedValue({
-                _id: 'testId',
-                ...createReservationDto,
-                save: jest.fn().mockResolvedValue({
-                    _id: 'testId',
-                    ...createReservationDto,
-                }),
-            });
+
+        it('should throw NotFoundException when restaurant not found', async () => {
             mockRestaurantService.findOne.mockResolvedValue(null);
+
             await expect(service.create(createReservationDto)).rejects.toThrow(NotFoundException);
         });
     });
 
     describe('findAll', () => {
         it('should return all reservations', async () => {
-            const reservations = [mockReservation, { ...mockReservation, _id: 'id2' }];
-            (reservationModel.find as jest.Mock).mockReturnValue({
-                exec: jest.fn().mockResolvedValue(reservations),
-            });
+            const reservations = [mockReservation];
+            mockReservationModel.find.mockReturnValue({ exec: jest.fn().mockResolvedValue(reservations) });
 
             const result = await service.findAll();
 
-            expect(reservationModel.find).toHaveBeenCalled();
+            expect(mockReservationModel.find).toHaveBeenCalled();
             expect(result).toEqual(reservations);
         });
     });
 
     describe('findByUserId', () => {
-        it('should return reservations by user ID', async () => {
+        it('should return reservations for specific user', async () => {
+            const userId = 'testCustomerId';
             const reservations = [mockReservation];
-            (reservationModel.find as jest.Mock).mockReturnValue({
-                exec: jest.fn().mockResolvedValue(reservations),
-            });
-            const result = await service.findByUserId('testCustomerId');
-            expect(reservationModel.find).toHaveBeenCalledWith({ customer_id: 'testCustomerId' });
+            mockReservationModel.find.mockReturnValue({ exec: jest.fn().mockResolvedValue(reservations) });
+
+            const result = await service.findByUserId(userId);
+
+            expect(mockReservationModel.find).toHaveBeenCalledWith({ customer_id: userId });
+            expect(result).toEqual(reservations);
+        });
+    });
+
+    describe('findByRestaurantId', () => {
+        it('should return reservations for specific restaurant', async () => {
+            const restaurantId = 'testRestaurantId';
+            const reservations = [mockReservation];
+            mockReservationModel.find.mockReturnValue({ exec: jest.fn().mockResolvedValue(reservations) });
+
+            const result = await service.findByRestaurantId(restaurantId);
+
+            expect(mockReservationModel.find).toHaveBeenCalledWith({ restaurant_id: restaurantId });
             expect(result).toEqual(reservations);
         });
     });
 
     describe('findOne', () => {
-        it('should return a reservation by ID', async () => {
-            (reservationModel.findOne as jest.Mock).mockReturnValue({
-                exec: jest.fn().mockResolvedValue(mockReservation),
-            });
+        it('should return a specific reservation', async () => {
+            mockReservationModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(mockReservation) });
+
             const result = await service.findOne('testId');
-            expect(reservationModel.findOne).toHaveBeenCalledWith({ _id: 'testId' });
+
+            expect(mockReservationModel.findOne).toHaveBeenCalledWith({ _id: 'testId' });
             expect(result).toEqual(mockReservation);
         });
 
-        it('should throw NotFoundException if reservation is not found', async () => {
-            (reservationModel.findOne as jest.Mock).mockReturnValue({
-                exec: jest.fn().mockResolvedValue(null),
-            });
-            await expect(service.findOne('nonExistentId')).rejects.toThrow(NotFoundException);
+        it('should throw NotFoundException when reservation not found', async () => {
+            mockReservationModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(null) });
+
+            await expect(service.findOne('testId')).rejects.toThrow(NotFoundException);
         });
     });
 
     describe('update', () => {
-        it('should update and return a reservation', async () => {
-            const updatedReservation = { ...mockReservation, guests: 5 };
-            (reservationModel.findOneAndUpdate as jest.Mock).mockReturnValue({
+        const updateData = { guests: 3 };
+
+        it('should successfully update a reservation', async () => {
+            const updatedReservation = { ...mockReservation, ...updateData };
+            mockReservationModel.findOneAndUpdate.mockReturnValue({
                 exec: jest.fn().mockResolvedValue(updatedReservation),
             });
-            const result = await service.update('testId', { guests: 5 });
-            expect(reservationModel.findOneAndUpdate).toHaveBeenCalledWith(
+
+            const result = await service.update('testId', updateData);
+
+            expect(mockReservationModel.findOneAndUpdate).toHaveBeenCalledWith(
                 { _id: 'testId' },
-                { guests: 5 },
-                { new: true },
+                updateData,
+                { new: true }
             );
             expect(result).toEqual(updatedReservation);
         });
 
-        it('should throw NotFoundException if reservation is not found', async () => {
-            (reservationModel.findOneAndUpdate as jest.Mock).mockReturnValue({
-                exec: jest.fn().mockResolvedValue(null),
-            });
-            await expect(service.update('nonExistentId', { guests: 5 })).rejects.toThrow(NotFoundException);
+        it('should throw NotFoundException when reservation not found', async () => {
+            mockReservationModel.findOneAndUpdate.mockReturnValue({ exec: jest.fn().mockResolvedValue(null) });
+
+            await expect(service.update('testId', updateData)).rejects.toThrow(NotFoundException);
         });
     });
 
     describe('delete', () => {
-        it('should delete a reservation and update related entities', async () => {
-            const mockReservation = {
-                _id: 'testId',
-                customer_id: 'testCustomerId',
-                table_id: 'testTableId',
-                restaurant_id: 'testRestaurantId',
-                reservation_time: new Date(),
-                end_time: new Date(),
-                guests: 2,
-                reservation_status: 'Pending',
-            };
-            mockRestaurantService.findOne.mockImplementation(async (id: string) => {
-                if (id === mockReservation.restaurant_id) {
-                    return { _id: mockReservation.restaurant_id };
-                }
-                return null;
-            });
-            (reservationModel.findByIdAndDelete as jest.Mock).mockReturnValue({
-                exec: jest.fn().mockResolvedValue(mockReservation),
-            });
-    
-            const mockReservationId = mockReservation._id;
-    
-            await service.delete(mockReservationId);
-    
-            expect(reservationModel.findByIdAndDelete).toHaveBeenCalledWith(
-                expect.objectContaining({ _id: mockReservationId }), // Use expect.objectContaining
-            );
-    
+        it('should successfully delete a reservation', async () => {
+            mockReservationModel.findByIdAndDelete.mockReturnValue({ exec: jest.fn().mockResolvedValue(mockReservation) });
+            mockRestaurantService.findOne.mockResolvedValue({ _id: 'testRestaurantId' });
+
+            await service.delete('testId');
+
+            expect(mockReservationModel.findByIdAndDelete).toHaveBeenCalledWith({ _id: 'testId' });
             expect(mockRestaurantService.deleteReservation).toHaveBeenCalledWith(
                 mockReservation.restaurant_id,
-                mockReservation._id,
+                mockReservation._id
             );
             expect(mockTableService.deleteReservation).toHaveBeenCalledWith(
                 mockReservation.table_id,
-                mockReservation._id,
+                mockReservation._id
             );
             expect(mockOrderService.deleteByReservation).toHaveBeenCalledWith(mockReservation.restaurant_id);
         });
 
-        it('should throw NotFoundException if reservation is not found', async () => {
-            (reservationModel.findByIdAndDelete as jest.Mock).mockReturnValue({
-                exec: jest.fn().mockResolvedValue(null),
-            });
-            await expect(service.delete('nonExistentId')).rejects.toThrow(NotFoundException);
+        it('should throw NotFoundException when reservation not found', async () => {
+            mockReservationModel.findByIdAndDelete.mockReturnValue({ exec: jest.fn().mockResolvedValue(null) });
+
+            await expect(service.delete('testId')).rejects.toThrow(NotFoundException);
+        });
+
+        it('should throw NotFoundException when restaurant not found during deletion', async () => {
+            mockReservationModel.findByIdAndDelete.mockReturnValue({ exec: jest.fn().mockResolvedValue(mockReservation) });
+            mockRestaurantService.findOne.mockResolvedValue(null);
+
+            await expect(service.delete('testId')).rejects.toThrow(NotFoundException);
         });
     });
 });
