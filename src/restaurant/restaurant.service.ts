@@ -83,7 +83,7 @@ export class RestaurantService {
 
     // pop reservation in array
     async deleteReservation(id: string, reservation_id: string): Promise<Restaurant> {
-        const updatedRestaurant = await this.restaurantModel.findByIdAndUpdate({_id:id},{ $pop: { reservations: reservation_id}},{new:true});
+        const updatedRestaurant = await this.restaurantModel.findByIdAndUpdate({_id:id},{ $pull: { reservations: reservation_id}},{new:true});
         if(!updatedRestaurant) {
             throw new NotFoundException(`Restaurant with ID ${id} not found`);
         }
@@ -92,7 +92,7 @@ export class RestaurantService {
 
     // pop order in array
     async deleteOrder(id: string, order_id: string): Promise<Restaurant> {
-        const updatedRestaurant = await this.restaurantModel.findByIdAndUpdate({_id:id},{ $pop: { orders: order_id}},{new:true});
+        const updatedRestaurant = await this.restaurantModel.findByIdAndUpdate({_id:id},{ $pull: { orders: order_id}},{new:true});
         if(!updatedRestaurant) {
             throw new NotFoundException(`Restaurant with ID ${id} not found`);
         }

@@ -73,7 +73,7 @@ export class TableService {
 
     // drop reservation
     async deleteReservation(id: string,reservation_id:string): Promise<Table> {
-        const table = await this.tableModel.findByIdAndUpdate({_id:id},{$pop:{reservation_ids:reservation_id}},{new:true}).exec();
+        const table = await this.tableModel.findByIdAndUpdate({_id:id},{$pull:{reservation_ids:reservation_id}},{new:true}).exec();
         // check if it failed
         if (!table) {
             throw new NotFoundException(`Table with ID ${id} not found`);
