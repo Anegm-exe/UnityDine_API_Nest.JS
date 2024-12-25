@@ -26,6 +26,18 @@ describe('ReservationService', () => {
         reservation_status: 'Pending',
     };
 
+    const mockRestaurant = {
+        _id: 'testRestaurantId',
+        name: 'Test Restaurant',
+        location: 'Test Location',
+        contact: 'test@restaurant.com',
+        rating: 4.5,
+        reservations: [],
+        orders: [],
+        tables: [],
+        items: []
+    };
+
     const mockRestaurantService = {
         findOne: jest.fn(),
         addReservation: jest.fn(),
@@ -46,6 +58,7 @@ describe('ReservationService', () => {
         findOne: jest.fn(),
         findByIdAndDelete: jest.fn(),
         findOneAndUpdate: jest.fn(),
+        exec: jest.fn(),
     };
 
     beforeEach(async () => {
@@ -100,11 +113,12 @@ describe('ReservationService', () => {
         it('should successfully create a reservation', async () => {
             const savedReservation = { ...mockReservation, save: jest.fn().mockResolvedValue(mockReservation) };
             mockReservationModel.create.mockResolvedValue(savedReservation);
-            mockRestaurantService.findOne.mockResolvedValue({ _id: 'testRestaurantId' });
+            mockRestaurantService.findOne.mockResolvedValue(mockRestaurant);
 
             const result = await service.create(createReservationDto);
 
             expect(mockReservationModel.create).toHaveBeenCalledWith(createReservationDto);
+            expect(savedReservation.save).toHaveBeenCalled();
             expect(mockRestaurantService.findOne).toHaveBeenCalledWith(createReservationDto.restaurant_id);
             expect(mockRestaurantService.addReservation).toHaveBeenCalledWith(
                 createReservationDto.restaurant_id,
@@ -114,9 +128,17 @@ describe('ReservationService', () => {
         });
 
         it('should throw NotFoundException when restaurant not found', async () => {
+            mockReservationModel.create.mockResolvedValue({ 
+                ...mockReservation, 
+                save: jest.fn().mockResolvedValue(mockReservation) 
+            });
             mockRestaurantService.findOne.mockResolvedValue(null);
 
-            await expect(service.create(createReservationDto)).rejects.toThrow(NotFoundException);
+            await expect(service.create(createReservationDto))
+                .rejects
+                .toThrow(new NotFoundException(`Restaurant with ID ${createReservationDto.restaurant_id} not found`));
+            
+            expect(mockRestaurantService.addReservation).not.toHaveBeenCalled();
         });
     });
 
@@ -129,6 +151,15 @@ describe('ReservationService', () => {
 
             expect(mockReservationModel.find).toHaveBeenCalled();
             expect(result).toEqual(reservations);
+        });
+
+        it('should return empty array when no reservations exist', async () => {
+            mockReservationModel.find.mockReturnValue({ exec: jest.fn().mockResolvedValue([]) });
+
+            const result = await service.findAll();
+
+            expect(mockReservationModel.find).toHaveBeenCalled();
+            expect(result).toEqual([]);
         });
     });
 
@@ -143,6 +174,16 @@ describe('ReservationService', () => {
             expect(mockReservationModel.find).toHaveBeenCalledWith({ customer_id: userId });
             expect(result).toEqual(reservations);
         });
+
+        it('should return empty array when user has no reservations', async () => {
+            const userId = 'nonexistentUserId';
+            mockReservationModel.find.mockReturnValue({ exec: jest.fn().mockResolvedValue([]) });
+
+            const result = await service.findByUserId(userId);
+
+            expect(mockReservationModel.find).toHaveBeenCalledWith({ customer_id: userId });
+            expect(result).toEqual([]);
+        });
     });
 
     describe('findByRestaurantId', () => {
@@ -155,6 +196,16 @@ describe('ReservationService', () => {
 
             expect(mockReservationModel.find).toHaveBeenCalledWith({ restaurant_id: restaurantId });
             expect(result).toEqual(reservations);
+        });
+
+        it('should return empty array when restaurant has no reservations', async () => {
+            const restaurantId = 'nonexistentRestaurantId';
+            mockReservationModel.find.mockReturnValue({ exec: jest.fn().mockResolvedValue([]) });
+
+            const result = await service.findByRestaurantId(restaurantId);
+
+            expect(mockReservationModel.find).toHaveBeenCalledWith({ restaurant_id: restaurantId });
+            expect(result).toEqual([]);
         });
     });
 
@@ -169,14 +220,17 @@ describe('ReservationService', () => {
         });
 
         it('should throw NotFoundException when reservation not found', async () => {
+            const reservationId = 'nonexistentId';
             mockReservationModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(null) });
 
-            await expect(service.findOne('testId')).rejects.toThrow(NotFoundException);
+            await expect(service.findOne(reservationId))
+                .rejects
+                .toThrow(new NotFoundException(`Reservation with ID ${reservationId} not found`));
         });
     });
 
     describe('update', () => {
-        const updateData = { guests: 3 };
+        const updateData = { guests: 3, reservation_status: 'Reserved' };
 
         it('should successfully update a reservation', async () => {
             const updatedReservation = { ...mockReservation, ...updateData };
@@ -195,20 +249,24 @@ describe('ReservationService', () => {
         });
 
         it('should throw NotFoundException when reservation not found', async () => {
+            const reservationId = 'nonexistentId';
             mockReservationModel.findOneAndUpdate.mockReturnValue({ exec: jest.fn().mockResolvedValue(null) });
 
-            await expect(service.update('testId', updateData)).rejects.toThrow(NotFoundException);
+            await expect(service.update(reservationId, updateData))
+                .rejects
+                .toThrow(new NotFoundException(`Reservation with ID ${reservationId} not found`));
         });
     });
 
     describe('delete', () => {
-        it('should successfully delete a reservation', async () => {
+        it('should successfully delete a reservation and all references', async () => {
             mockReservationModel.findByIdAndDelete.mockReturnValue({ exec: jest.fn().mockResolvedValue(mockReservation) });
-            mockRestaurantService.findOne.mockResolvedValue({ _id: 'testRestaurantId' });
+            mockRestaurantService.findOne.mockResolvedValue(mockRestaurant);
 
             await service.delete('testId');
 
             expect(mockReservationModel.findByIdAndDelete).toHaveBeenCalledWith({ _id: 'testId' });
+            expect(mockRestaurantService.findOne).toHaveBeenCalledWith(mockReservation.restaurant_id);
             expect(mockRestaurantService.deleteReservation).toHaveBeenCalledWith(
                 mockReservation.restaurant_id,
                 mockReservation._id
@@ -217,20 +275,33 @@ describe('ReservationService', () => {
                 mockReservation.table_id,
                 mockReservation._id
             );
-            expect(mockOrderService.deleteByReservation).toHaveBeenCalledWith(mockReservation.restaurant_id);
+            expect(mockOrderService.deleteByReservation).toHaveBeenCalledWith(mockReservation._id);
         });
 
         it('should throw NotFoundException when reservation not found', async () => {
+            const reservationId = 'nonexistentId';
             mockReservationModel.findByIdAndDelete.mockReturnValue({ exec: jest.fn().mockResolvedValue(null) });
 
-            await expect(service.delete('testId')).rejects.toThrow(NotFoundException);
+            await expect(service.delete(reservationId))
+                .rejects
+                .toThrow(new NotFoundException(`Reservation with ID ${reservationId} not found`));
+            
+            expect(mockRestaurantService.deleteReservation).not.toHaveBeenCalled();
+            expect(mockTableService.deleteReservation).not.toHaveBeenCalled();
+            expect(mockOrderService.deleteByReservation).not.toHaveBeenCalled();
         });
 
         it('should throw NotFoundException when restaurant not found during deletion', async () => {
             mockReservationModel.findByIdAndDelete.mockReturnValue({ exec: jest.fn().mockResolvedValue(mockReservation) });
             mockRestaurantService.findOne.mockResolvedValue(null);
 
-            await expect(service.delete('testId')).rejects.toThrow(NotFoundException);
+            await expect(service.delete('testId'))
+                .rejects
+                .toThrow(new NotFoundException(`Restaurant with ID ${mockReservation.restaurant_id} not found`));
+            
+            expect(mockRestaurantService.deleteReservation).not.toHaveBeenCalled();
+            expect(mockTableService.deleteReservation).not.toHaveBeenCalled();
+            expect(mockOrderService.deleteByReservation).not.toHaveBeenCalled();
         });
     });
 });
