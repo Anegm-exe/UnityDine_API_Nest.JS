@@ -23,7 +23,7 @@ export class Reservation {
     @Prop({ required: true })
     guests: number;
 
-    @Prop({ default: 'Ready', enum: ['Pending','Reserved','Complete']})
+    @Prop({ default: 'Pending', enum: ['Pending','Reserved','Complete']})
     reservation_status: string;
 
     readonly _id?: string;
