@@ -79,6 +79,6 @@ export class ReservationService {
         }
         await this.restaurantService.deleteReservation(reservation.restaurant_id,reservation._id);
         await this.tableService.deleteReservation(reservation.table_id,reservation._id);
-        await this.orderService.deleteByReservation(reservation.restaurant_id)
+        await this.orderService.deleteByReservation(reservation._id.toString())
     }
 }

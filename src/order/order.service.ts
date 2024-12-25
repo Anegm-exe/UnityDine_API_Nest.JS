@@ -63,20 +63,12 @@ export class OrderService {
     // delete orders by reservation
     async deleteByReservation(reservation_id: string): Promise<void> {
         const orders = await this.orderModel.find({ reservation_id: reservation_id }).exec();
-
         if(orders.length === 0) return;
-
-        const restaurant = await this.restaurantService.findOne(orders[0].restaurant_id);
-        if (!restaurant) {
-            throw new NotFoundException(`Restaurant with ID ${orders[0].restaurant_id} not found`);
-        }
-        await Promise.all(orders.map(async (order) => {
-            await this.restaurantService.deleteOrder(order.restaurant_id,order._id);
-        }))
         // loop and delete orders
         Promise.all(orders.map(async (order)=>{
             try {
-                await this.delete(order._id);
+                await this.orderModel.findByIdAndDelete({ _id: order._id }).exec();
+                await this.restaurantService.deleteOrder(order.restaurant_id,order._id);
             }catch(error){
                 console.log(error)
             }
